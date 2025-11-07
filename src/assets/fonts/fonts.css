@@ -1,0 +1,6 @@
+/* Define custom fonts for the application */
+@font-face {
+  font-family: 'Bloc';
+  src: url('./BlocRegular.ttf') format('truetype');
+  font-weight: normal;
+}

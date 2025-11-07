@@ -1,3 +1,38 @@
+// Return array of polygons
+export function svgToPolygon(svgObj) {
+  const paths = svgObj.querySelectorAll('path');
+  const polygons = [];
+
+  paths.forEach(path => {
+    // For each path (aka triangle) in the SVG, get its raw coordinates then
+    // convert to relative percentages for the polygon, then create a div to
+    // represent each shard, with the css for the polygon passed in
+    let polygonString = '';
+    const rawPoints = pathToCoords(path.getAttribute('d'));
+    const fillColor = path.getAttribute('fill');
+    const polygonPoints = coordsToPolygonPoints(rawPoints, getViewBox(svgObj));
+
+    for (let i = 0; i < polygonPoints.length; i++) {
+      if (i > 0) polygonString += ', ';
+      polygonString += `${polygonPoints[i][0]}% ${polygonPoints[i][1]}%`;
+    }
+
+    // If not empty, construct the polygon
+    if (polygonString !== '') {
+      const shard = document.createElement('div');
+      shard.setAttribute('class', 'shard');
+      // shard.style.clipPath = polygonString;
+      shard.style.webkitClipPath = `polygon(${polygonString})`;
+      shard.style.backgroundColor = fillColor;
+  
+      polygons.push(shard);
+    }
+  });
+
+
+  return polygons;
+}
+
 export function pathToCoords(path) {
   const coords = [];  // 3 (x,y) pairs
   let currentX = 0;   // Starting point (x-coordinate)
@@ -43,7 +78,7 @@ export function pathToCoords(path) {
 
 // Takes in set of coordinates [[X1,,Y1],[X2,Y2],[X3,Y3]] and calculates
 // relative polygon points for SVG polygon element within given viewbox
-export function coordsToPolygon(coords, viewbox) {
+export function coordsToPolygonPoints(coords, viewbox) {
   const polygonPoints = coords.map(([x, y]) => {
     // Scale coordinates to percentage of viewbox and only 1 decimal place, output as numbers
     const scaledX = Number((((x - viewbox.x) / viewbox.width) * 100).toFixed(1));
@@ -51,4 +86,15 @@ export function coordsToPolygon(coords, viewbox) {
     return [scaledX, scaledY];
   });
   return polygonPoints;
+}
+
+export function countTriangles(svgObj) {
+  const paths = svgObj.querySelectorAll('path');
+  return paths.length;
+}
+
+export function getViewBox(svgObj) {
+  const viewBoxElements = svgObj.getAttribute('viewBox').split(' ');
+  const viewBox = { x: Number(viewBoxElements[0]), y: Number(viewBoxElements[1]), width: Number(viewBoxElements[2]), height: Number(viewBoxElements[3]) };
+  return viewBox;
 }
