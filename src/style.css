@@ -19,13 +19,6 @@ main {
   background-color: aquamarine;
 }
 
-#shard-mover {
-  position: absolute;
-  top: 0;
-  left: 0;
-  border: 1px solid rebeccapurple;
-}
-
 .shard-wrapper {
   position: absolute;
   width: 100%;
