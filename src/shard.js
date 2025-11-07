@@ -36,5 +36,19 @@ export function pathToCoords(path) {
   });
 
   // Consider removing duplicate points (like when closing path returns to start)
-  return coords;
+  return coords.filter((coord, index, self) =>
+    index === self.findIndex(c => c[0] === coord[0] && c[1] === coord[1])
+  );
+}
+
+// Takes in set of coordinates [[X1,,Y1],[X2,Y2],[X3,Y3]] and calculates
+// relative polygon points for SVG polygon element within given viewbox
+export function coordsToPolygon(coords, viewbox) {
+  const polygonPoints = coords.map(([x, y]) => {
+    // Scale coordinates to percentage of viewbox and only 1 decimal place, output as numbers
+    const scaledX = Number((((x - viewbox.x) / viewbox.width) * 100).toFixed(1));
+    const scaledY = Number((((y - viewbox.y) / viewbox.height) * 100).toFixed(1));
+    return [scaledX, scaledY];
+  });
+  return polygonPoints;
 }

@@ -9,7 +9,7 @@ test('pathToCoords fails with empty path', () => {
 test('pathToCoords extracts coordinates from SVG path', () => {
     const path = "M0 76L24 0L51 76H0Z";
     const coords = shards.pathToCoords(path);
-    expect(coords).toEqual([[0, 76], [24, 0], [51, 76], [0, 76]]);
+    expect(coords).toEqual([[0, 76], [24, 0], [51, 76]]);
 });
 
 test('pathToCoords works for triangle with positive coordinates', () => {
@@ -30,3 +30,9 @@ test('pathToCoords works for triangle with decimals', () => {
   expect(coords).toEqual([[1.5, 2.5], [3.1, 4.2], [5.7, 6.8]]);
 });
 
+test('coordsToPolygon converts coordinates to SVG polygon points', () => {
+    const coords = [[0, 76], [24, 0], [51, 76]];
+    const viewbox = { x: 0, y: 0, width: 51, height: 76 };
+    const polygonPoints = shards.coordsToPolygon(coords, viewbox);
+    expect(polygonPoints).toEqual([[0.0,100.0],[47.1,0.0],[100.0,100.0]]);
+});
