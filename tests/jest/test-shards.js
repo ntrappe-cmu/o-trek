@@ -82,4 +82,12 @@ describe('serizalize polygon data', () => {
     const result = JSON.parse(shards.serializePolygonData(svgObj));
     expect(result.name).toBe('piece');
   });
+
+  test('should process all paths into shards', () => {
+    const result = JSON.parse(shards.serializePolygonData(svgObj));
+    
+    expect(Object.keys(result.shards)).toHaveLength(2);
+    expect(result.shards).toHaveProperty('1');
+    expect(result.shards).toHaveProperty('2');
+  });
 });
