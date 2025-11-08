@@ -12,9 +12,11 @@
  * @returns {HTMLDivElement} The container div element (.shard-box) containing the created shard elements.
  */
 export function createShardElements(data) {
-  const shardBox = document.createElement('div');
-  shardBox.setAttribute('class', 'shard-box');
-  shardBox.setAttribute('id', data.name);
+  if (!data || !data.box || !data.shards) {
+    throw new Error('Invalid shard data provided');
+  }
+
+  const shardBox = document.getElementById('shard-box');
 
   // Set size of shared box based on viewbox dimensions to ensure correct aspect ratio
   // and keep the triangles from being distorted
@@ -209,3 +211,4 @@ export function coordinatesToPercentages(coordinates, box, precision = 1) {
   });
   return percentages;
 }
+
