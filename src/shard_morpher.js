@@ -49,70 +49,6 @@ class ShardMorpher {
     return this.revealShards(direction);
   }
 
-  async morphShards(newData, direction) {
-    // Step 1: Nudge canvas in direction to suggest movement
-    await this.nudgeCanvas(direction, 'out');
-    
-    // Step 2: Morph clip-paths and colors simultaneously
-    await this.transformShards(newData);
-    
-    // Step 3: Return canvas to center
-    await this.nudgeCanvas(direction, 'in');
-  }
-
-  nudgeCanvas(direction, phase) {
-    return new Promise((resolve) => {
-      const shift = phase === 'out' ?
-        (direction === 'ltr' ? '-2%' : '2%') :
-        '0%';
-
-      const canvas = document.getElementById('canvas');
-      if (!canvas) throw new Error('Container canvas not found');
-
-      canvas.style.transform = `translateX(${shift})`;
-      canvas.style.transition = 'transform 0.4s cubic-bezier(0.7, 0.3, 0, 1)';
-
-      setTimeout(resolve, 400);
-    });
-  }
-
-  transformShards(newData) {
-    return new Promise((resolve) => {
-      const newShards = Object.entries(newData.shards);
-      const newShardCount = Math.min(newShards.length, this.maxShards);
-
-      // Morph existing shards to new shapes/colors
-      newShards.forEach(([id, shardData], index) => {
-        if (index < this.maxShards) {
-          const shard = this.shards[index];
-          const delay = this.calculateDelay(index, 'ltr', newShardCount);
-          shard.style.transition = `clip-path 0.33s cubic-bezier(0.7, 0.3, 0, 1) ${delay}ms, 
-                                    background-color 0.33s cubic-bezier(0.7, 0.3, 0, 1) ${delay}ms`;
-          shard.style.clipPath = shardData.path;
-          shard.style.backgroundColor = shardData.fill;
-        }
-      });
-
-      // Collapse any shards that are no longer needed
-      for (let i = newShardCount; i < this.maxShards; i++) {
-        const shard = this.shards[i];
-        const delay = this.calculateDelay(i, 'ltr', this.maxShards);
-        shard.style.transition = `clip-path 0.33s cubic-bezier(0.7, 0.3, 0, 1) ${delay}ms`;
-        shard.style.clipPath = 'polygon(50% 50%, 50% 50%, 50% 50%)';
-      }
-
-      this.activeShards = newShardCount;
-
-      // Wait for longest animation to complete
-      const maxDelay = this.calculateDelay(
-        Math.max(newShardCount, this.activeShards) - 1, 
-        'ltr', 
-        this.maxShards
-      );
-      setTimeout(resolve, maxDelay + 330);
-    });
-  }
-
   revealShards(direction) {
     return new Promise((resolve) => {
       const step = 30; // ms delay between each piece
@@ -134,7 +70,8 @@ class ShardMorpher {
           shard.style.transition = `
             clip-path ${duration}ms cubic-bezier(0.6, 0.05, 0.28, 0.91) ${delay}ms,
             background-color ${duration}ms ease ${delay}ms,
-            opacity ${duration/2}ms ease ${delay}ms
+            opacity ${duration/2}ms ease ${delay}ms,
+            z-index 0s linear ${delay}ms
           `;
         } else {
           // Reset transition for unused shards so they hide instantly (no delay)
