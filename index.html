@@ -8,10 +8,16 @@
     <title>O-Trek</title>
   </head>
   <body>
-    <main id="stage">
-      <p>HELLO WORLD</p>
-      <div id="stage-manager">
-        <div id="shard-box"></div>
+    <div id="exhibition" class="turtle">
+      <!-- Fixed viewport frame -->
+      <div class="viewport" style="border: 1px solid blue;">
+        <!-- Rotation/skew wrapper -->
+        <div class="stage" style="border: 1px solid orange;">
+          <!-- Animation/transform wrapper -->
+          <div class="canvas direction-rtl" id="canvas" style="border: 1px solid hotpink;">
+          <!-- Individual shard containers -->
+          </div>
+        </div>
       </div>
     </main>
     <script type="module" src="/src/main.js"></script>

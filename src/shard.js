@@ -1,3 +1,6 @@
+const GLOBAL_STAGE_WIDTH = 1000;
+const GLOBAL_STAGE_HEIGHT = 1000;
+
 /**
  * Create DOM elements representing shards from a parsed JSON descriptor and return the container div.
  *
@@ -201,13 +204,23 @@ export function pathToCoordinates(pathString) {
  * @returns {Array.<Array.<string>>} Array of percentage coordinate pairs as strings: [[xPctStr, yPctStr], ...].
  */
 export function coordinatesToPercentages(coordinates, box, precision = 1) {
+  // Calculate offset to center this animal on the 1000x1000 stage
+  const offsetX = (GLOBAL_STAGE_WIDTH - box.w) / 2;
+  const offsetY = (GLOBAL_STAGE_HEIGHT - box.h) / 2;
+
   const percentages = coordinates.map(([x, y]) => {
-    // Scale coordinates to percentage of viewbox and only 1 decimal place, output as numbers
-    const scaledX = ((x - box.x) / box.w) * 100;
-    const standardizedX = precision > 0 ? scaledX.toFixed(precision) : Math.round(scaledX);
-    const scaledY = ((y - box.y) / box.h) * 100;
-    const standardizedY = precision > 0 ? scaledY.toFixed(precision) : Math.round(scaledY);
-    return [Number(standardizedX), Number(standardizedY)];
+    // Add the offset to the coordinate, then divide by global stage
+    // We subtract box.x/y first to normalize the animal to (0,0)
+    const absoluteX = (x - box.x) + offsetX;
+    const absoluteY = (y - box.y) + offsetY;
+
+    const scaledX = (absoluteX / GLOBAL_STAGE_WIDTH) * 100;
+    const scaledY = (absoluteY / GLOBAL_STAGE_HEIGHT) * 100;
+
+    return [
+      precision > 0 ? scaledX.toFixed(precision) : Math.round(scaledX),
+      precision > 0 ? scaledY.toFixed(precision) : Math.round(scaledY)
+    ];
   });
   return percentages;
 }

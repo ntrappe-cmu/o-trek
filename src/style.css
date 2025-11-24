@@ -1,41 +1,62 @@
 @import './assets/fonts/fonts.css';
 
-body {
-  margin: 0;
+body, html {
+  height: 100%;
+  width: 100%;
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
   overflow: hidden;
-  font-family: 'Bloc';
-  line-height: 1.5;
-  letter-spacing: 0.07em;
 }
 
-main {
+/* The nested transform layers (viewport → stage → canvas) need precise absolute positioning */
+/* with top: 0; left: 0 to create the transform origin points */
+#exhibition {
   height: 100%;
   width: 100%;
-  overflow: hidden;
-  background-color: aquamarine;
-}
-
-#stage-manager {
-  width: 500px;
-}
-
-#shard-box {
   position: relative;
+  overflow: hidden;
+  transition: background 0.5s ease;
+
+  /* Specific background colors */
+  &.turtle { background-color: aquamarine; }
+}
+
+.viewport {
+  position: absolute;
   width: 100%;
-  transition: 0.8s cubic-bezier(0.62, 0.02, 0.34, 1);
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  opacity: 1;
+  /* transform: scale(0.5) translateY(-14%);
+  transition: 0.8s cubic-bezier(0.88, 0.005, 0.1, 1); */
+}
+
+.stage {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* transition: transform 0.8s cubic-bezier(0.88, 0.005, 0.1, 1); */
+}
+
+.canvas {
+  position: absolute;
+  top: 10%;
+  left: 20%;
+  min-width: 30em;
+  min-height: 15em;
+  /* transition: 0.33s cubic-bezier(0.7, 0.3, 0, 1); */
 }
 
 .shard-wrapper {
   position: absolute;
   width: 100%;
   height: 100%;
-  z-index: 2;
-  transition: 0.3s;
+  top: 0;
+  left: 0;
 }
 
 .shard {
@@ -43,9 +64,10 @@ main {
   width: 100%;
   height: 100%;
   background-color: blueviolet;
-  -webkit-clip-path: polygon(15.1% 69.071%, 18% 56.929%, 20% 74.5%);
-  clip-path: polygon(15.1% 69.071%, 18% 56.929%, 20% 74.5%);
-  transition: 0.6s 0s cubic-bezier(0.7, 0.3, 0, 1);
+  clip-path: polygon(50% 50%, 50% 50%, 50% 50%);
+  -webkit-clip-path: polygon(50% 50%, 50% 50%, 50% 50%);
+  /* transition: all 0.33s cubic-bezier(0.7, 0.3, 0, 1);
+  will-change: clip-path, transform, opacity; */
 }
 
 /* @media (prefers-color-scheme: light) {
