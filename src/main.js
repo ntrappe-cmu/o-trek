@@ -10,23 +10,23 @@ import tri2 from '../public/json/triangle-purple.json'
 import { serializePolygonData, createShardElements } from './shard.js';
 
 
-// try {
-//   const name = 'dolphin';
-//   const res = await fetch(`/svg/${name}.svg`);
-//   if (!res.ok) throw new Error('Failed to load SVG: ' + res.status);
-//   const svgText = await res.text();
+try {
+  const name = 'woodpecker';
+  const res = await fetch(`/svg/${name}.svg`);
+  if (!res.ok) throw new Error('Failed to load SVG: ' + res.status);
+  const svgText = await res.text();
 
-//   const parser = new DOMParser();
-//   const doc = parser.parseFromString(svgText, 'image/svg+xml');
-//   const svg = doc.querySelector('svg');
-//   if (!svg) throw new Error(`No <svg> found in /${name}.svg`);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(svgText, 'image/svg+xml');
+  const svg = doc.querySelector('svg');
+  if (!svg) throw new Error(`No <svg> found in /${name}.svg`);
 
-//   const shardDataJson = serializePolygonData(svg, name);
-//   localStorage.setItem(name, shardDataJson);
+  const shardDataJson = serializePolygonData(svg, name);
+  localStorage.setItem(name, shardDataJson);
 
-// } catch (err) {
-//   console.error(err);
-// }
+} catch (err) {
+  console.error(err);
+}
 
 
 // Initialize the morpher

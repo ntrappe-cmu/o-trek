@@ -24,6 +24,7 @@ export function createShardElements(data) {
   // Set size of shared box based on viewbox dimensions to ensure correct aspect ratio
   // and keep the triangles from being distorted
   shardBox.style.aspectRatio = `${data.box.w} / ${data.box.h}`;
+  console.log('aspect ratio @ shard.js', shardBox.style.aspectRatio);
 
   for (const [shardId, shardData] of Object.entries(data.shards)) {
     console.log(`Creating shard ${shardId}`);

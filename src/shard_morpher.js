@@ -88,9 +88,9 @@ class ShardMorpher {
   updateShardData(data) {
     // Convert the dictionary to an array so we can sort it
     // We don't care about the IDs ("1", "30") anymore (not using them for ordering)
+    if (!data.shards) throw new Error('ERROR: Cannot update data without valid shards and box');
+
     const shardArr = Object.entries(data.shards);
-    console.log('shardArr[0]', shardArr[0]);
-    console.log('shardArr[1]', shardArr[1]);
    
     // Sort the array based on the X-position of the shape so items further to the left
     // show up first which makes it easier for the wave to pick the first item (leftmost)
@@ -98,9 +98,6 @@ class ShardMorpher {
     shardArr.sort((a, b) => {
       return getLeftEdge(a[1].path) - getLeftEdge(b[1].path);
     });
-
-    console.log('shardArr[0]', shardArr[0]);
-    console.log('shardArr[1]', shardArr[1]);
 
     this.activeShards = Math.min(shardArr.length, this.maxShards);
 
@@ -115,8 +112,6 @@ class ShardMorpher {
         // const area = getPolygonArea(shardData[1].path);
         const width = getShardWidth(shardData[1].path);
         const zIndex = Math.floor(100 - width);
-        // console.log('area', area);
-        console.log('width', width);
         shard.style.zIndex = zIndex;
 
         // Apply visual properties
