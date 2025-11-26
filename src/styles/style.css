@@ -1,0 +1,161 @@
+@import url('./fonts/fonts.css');
+
+body, html {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  font-family: 'Bloc';
+}
+
+/* The nested transform layers (viewport → stage → canvas) need precise absolute positioning */
+/* with top: 0; left: 0 to create the transform origin points */
+#exhibition {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.5s ease;
+  -webkit-transition: background 0.5s ease;
+  -moz-transition: background 0.5s ease;
+
+  /* Specific background colors */
+  &.turtle { background-color: rgb(225, 141, 165); color: rgb(154, 74, 96); }
+}
+
+.viewport {
+  border: 1px solid blue;
+  width: 100%;
+  height: 100%;
+  /* transform: scale(0.5) translateY(-14%);
+  transition: 0.8s cubic-bezier(0.88, 0.005, 0.1, 1); */
+}
+
+.stage {
+  display: grid;
+  align-items: center;
+  border: 1px solid orange;
+  width: 100%;
+  height: 100%;
+  /* transition: transform 0.8s cubic-bezier(0.88, 0.005, 0.1, 1); */
+}
+
+.border {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+
+  div {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+  }
+}
+
+.frames {
+  div:nth-child(1) {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 20px;
+    background: url("../assets/border.svg") repeat-x 50% 50%;
+  }
+
+  div:nth-child(2) {
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 20px;
+    background: url("../assets/border-vert.svg") repeat-y 50% 50%;
+  }
+
+  div:nth-child(3) {
+    left: 0;
+    top: auto;
+    bottom: 0;
+    height: 20px;
+    width: 100%;
+    transform: rotate(179.99deg);
+    background: url("../assets/border.svg") repeat-x 50% 50%;
+  }
+
+  div:nth-child(4) {
+    top: auto;
+    right: 0;
+    height: 100%;
+    width: 20px;
+    transform: rotate(179.99deg);
+    background: url("../assets/border-vert.svg") repeat-y 50% 50%;
+  }
+}
+
+.corners {
+  div::before, div::after {
+    content: "";
+    background: url("../assets/corner.svg") no-repeat center center;
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    
+  }
+
+  div:nth-child(1)::before {
+    left: 10px;
+    top: 11px;
+  }
+
+  div:nth-child(1)::after {
+    transform: rotate(90deg);
+    left: auto;
+    right: 10px;
+    top: 11px;
+  }
+
+  div:nth-child(2)::before {
+    left: auto;
+    right: 10px;
+    top: auto;
+    bottom: 11px;
+    transform: rotate(180deg);
+  }
+
+  div:nth-child(2)::after {
+    left: 10px;
+    top: auto;
+    bottom: 11px;
+    transform: rotate(270deg);
+  }
+}
+
+@media only screen and ((max-width:700px) or (max-height:500px)) {
+  .border, .frames, .corners {
+    visibility: hidden;
+  }
+}
+
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --dolphin-background: #64d6e2;
+  --woodpecker-background: #bca9e8;
+  --guanaco-background: #a9e8ad;
+  --smth-background: #87c4a3;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}

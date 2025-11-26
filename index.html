@@ -5,23 +5,26 @@
     <meta http-equiv="Content-Type" content-type="application/javascript">
     <link rel="icon" type="image/svg+xml" href="src/assets/piece.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="src/style.css">
+    <link rel="stylesheet" href="src/styles/stage.css">
+    <link rel="stylesheet" href="src/styles/style.css">
+    <link rel="stylesheet" href="src/styles/galaxy.css">
     <title>O-Trek</title>
   </head>
   <body>
     <main id="exhibition" class="turtle">
-      <div class="border">
-        <div class="frames">
+      <!-- Just for UI purposes, no function -->
+      <div class="border" role="presentation">
+        <div class="frames" role="presentation">
           <div></div>
           <div></div>
           <div></div>
           <div></div>
         </div>
-          <div class="corners">
-            <div></div>
-            <div></div>
-          </div>
+        <div class="corners" role="presentation">
+          <div></div>
+          <div></div>
         </div>
+      </div>
       <!-- Fixed viewport frame -->
       <div class="viewport">
         <!-- Rotation/skew wrapper -->
@@ -38,24 +41,36 @@
         </div>
         <nav class="nav-controls">
           <span id="prev-btn-wrapper">
-            <button class="prev-btn">
+            <button class="prev-btn" aria-label="previous page">
               <svg width="249" height="249" viewBox="0 0 249 249" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="124.5" cy="124.5" r="117.5" stroke="white" stroke-width="12"/>
                 <path d="M79 154L125.31 96L171 154" stroke="white" stroke-width="12" stroke-linecap="round"/>
               </svg>
             </button>
-            <div class="control-popup" id="prev-popup">PREV</div>
+            <div class="control-popup" id="prev-popup" aria-label="name of previous page">
+              PREV
+            </div>
           </span>
           <span class="next-btn-wrapper">
-            <button class="next-btn">
+            <button class="next-btn" aria-label="next page">
               <svg width="249" height="249" viewBox="0 0 249 249" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="124.5" cy="124.5" r="117.5" stroke="white" stroke-width="12"/>
                 <path d="M79 154L125.31 96L171 154" stroke="white" stroke-width="12" stroke-linecap="round"/>
               </svg>
             </button>
-            <div class="control-popup" id="next-popup">NEXT</div>
+            <div class="control-popup" id="next-popup" aria-label="name of next page">
+              NEXT
+            </div>
           </span>
         </nav>
+        <div class="fullscreen-overlay">
+          <span class="title-content">
+            <h1>IN PIECES</h1>
+            <h2>10 THINGS</h2>
+            <h2>10 PIECES</h2>
+            <h3>EXPLORING PATAGONIA</h3>
+          </span>
+        </div>
       </div>
     </main>
     <script type="module" src="src/main.js"></script>

@@ -40,13 +40,61 @@ class ShardMorpher {
     return shards;
   }
 
+  // ========================================================
+  // PUBLIC API: MOVEMENT FLAVORS
+  // ========================================================
+
+  /**
+   * STANDARD MORPH: Used when changing species.
+   * Features: Sorting (Left-to-Right), Wave Effect, Area-based Z-Index.
+   */
   async morphTo(data, direction = 'ltr') {
-    // 1. Update the physical props (path/color) and sort visually
+    // 1. Save the base of the animal/shard object
+    this.currentData = data;
+
+    // 2. Update the physical props (path/color) and sort visually
     this.updateShardData(data);
 
-    // 2. Apply delay to create wave effect
+    // 3. Apply delay to create wave effect
     // We pass 'direction' here to decide if delays go 0->30 or 30->0
     return this.revealShards(direction);
+  }
+
+  /**
+   * TWITCH: Used for nervous ticks, feathers ruffling.
+   * Features: Fast, No Sort (Identity Preserved), Elastic/Bouncy.
+   * No shards should be added or removed.
+   */
+  async twitch(data) {
+    // Update the DOM to the twitch (after pose) but don't update our saved model
+    if (!this.currentData) throw new Error('No state to return back to. Aborting.');
+
+    this.updateShardData(data);
+
+    await new Promise(resolve => {
+      this.shards.forEach((shard, i) => {
+        shard.style.transition = `clip-path 500ms cubic-bezier(0.5, 2, 0.5, 0.5)`;
+      });
+
+      setTimeout(resolve, 650);
+    });
+
+    this.updateShardData(this.currentData);
+    await new Promise(resolve => {
+      this.shards.forEach((shard, i) => {
+        shard.style.transition = `clip-path 400ms cubic-bezier(0.5, 0.5, 0.5, 1.5)`;
+      });
+
+      setTimeout(resolve, 500);
+    });
+  }
+
+  /**
+   * POSE: Used for Mouth Open / Head Tilt.
+   * Features: Moderate speed, Smooth, No Sort.
+   */
+  async pose(data) {
+    
   }
 
   revealShards(direction) {
@@ -82,7 +130,7 @@ class ShardMorpher {
       // Resolve promise after the last shard has finished moving
       const totalTime = (this.activeShards * step) + duration;
       setTimeout(resolve, totalTime);
-    })
+    });
   }
 
   updateShardData(data) {
@@ -161,60 +209,7 @@ function getLeftEdge(polygonString) {
     }
 
     return minX;
-  }
-
-function getCentroidX(polygonString) {
-  if (!polygonString) return 0;
-
-  // Extract all numbers that precede a '%' sign (extract coordinates)
-  const coords = polygonString.match(/([0-9.]+)%/g);
-  if (!coords) {
-    console.error("Couldn't extract any polygon % coordinates @shard_morpher.js");
-    return 0;
-  }
-
-  let sumX = 0;
-  let count = 0;
-
-  // X coordinates are always even (x1, y1) -- x is 0 place
-  for (let i = 0; i < coords.length; i += 2, count++) {
-    const val = parseFloat(coords[i]);
-    sumX += val;
-  }
-
-  return sumX / count;
 }
-
-// Calculate the Area of the polygon (Shoelace Formula)
-// Used for Z-Index sorting (Smallest Area = Highest Z-Index)
-// function getPolygonArea(polygonString) {
-//   if (!polygonString) return 0;
-
-//   // Extract percentages
-//   const percents = polygonString.match(/([0-9.]+)%/g);
-//   if (!percents) return 0;
-
-//   // Convert to array of points [{x, y}, {x, y}...]
-//   const points = []
-//   for (let i = 0; i < percents.length; i += 2) {
-//     points.push({
-//       x: parseFloat(percents[i]),
-//       y: parseFloat(percents[i+1])
-//     });
-//   }
-
-//   console.log('converted to array', points);
-
-//   // Shoelace formula
-//   let area = 0;
-//   for (let j = 0; j < percents.length; j++) {
-//     const k = (j + 1) % percents.length;
-//     area += percents[j].x * percents[k].y;
-//     area -= percents[k].x * percents[j].y;
-//   }
-
-//   return Math.abs(area / 2);
-// }
 
 function getShardWidth(polygonString) {
   if (!polygonString) {

@@ -4,6 +4,7 @@ import condor from '../public/json/condor.json';
 import guanaco from '../public/json/guanaco.json';
 import dolphin from '../public/json/dolphin.json'
 import woodpecker from '../public/json/woodpecker.json';
+import woodpecker2 from '../public/json/woodpecker2.json';
 import tri1 from '../public/json/triangle-orange.json';
 import tri2 from '../public/json/triangle-purple.json'
 
@@ -11,7 +12,7 @@ import { serializePolygonData, createShardElements } from './shard.js';
 
 
 try {
-  const name = 'woodpecker';
+  const name = 'woodpecker2';
   const res = await fetch(`/svg/${name}.svg`);
   if (!res.ok) throw new Error('Failed to load SVG: ' + res.status);
   const svgText = await res.text();
@@ -34,16 +35,19 @@ const morpher = new ShardMorpher(40);
 // Load first animal immediately
 morpher.morphTo(woodpecker);
 
+// morpher.twitch(woodpecker2);
+
+
 // Switch to second animal after 3 seconds
-setTimeout(() => {
-  console.log('Switching to group2');
-  morpher.morphTo(dolphin, 'ltr');
+// setTimeout(() => {
+//   console.log('Switching to group2');
+//   morpher.morphTo(dolphin, 'ltr');
 
-  setTimeout(() => {
-    console.log('Switching to group1');
-    morpher.morphTo(woodpecker, 'rtl');
-  }, 4000);
+//   setTimeout(() => {
+//     console.log('Switching to group1');
+//     morpher.morphTo(woodpecker, 'rtl');
+//   }, 4000);
 
-}, 4000);
+// }, 4000);
 
 
