@@ -21,7 +21,7 @@ body, html {
   -moz-transition: background 0.5s ease;
 
   /* Specific background colors */
-  &.turtle { background-color: rgb(225, 141, 165); }
+  &.turtle { background-color: rgb(225, 141, 165); color: rgb(154, 74, 96); }
 }
 
 .viewport {
@@ -46,7 +46,6 @@ body, html {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  border: 1px solid yellow;
   aspect-ratio: 1 / 1;
   width: 80%;
   height: auto;
@@ -73,6 +72,101 @@ body, html {
   /* transition: all 0.33s cubic-bezier(0.7, 0.3, 0, 1);
   will-change: clip-path, transform, opacity; */
 }
+
+.info-wrapper {
+  border: 1px solid cyan;
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  transition: 0.18s 0.3s;
+  margin-top: 13%;
+  font-family: 'Bloc';
+
+  ul {
+    position: relative;
+    text-align: center;
+    transition: 0.18s;
+    font-size: 1.8em;
+    background: url("./assets/repeat-white.png") center center / 80px 60px repeat;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: 0.253s linear infinite forwards scratchy;
+    letter-spacing: 0.05em;
+  }
+}
+
+.nav-controls {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 50%;
+  right: 50px;
+  transform: translate(0, -50%);
+
+  span:last-child {
+    margin-top: 5em;
+  }
+
+  span:hover {
+    button {
+      opacity: 90%;
+    }
+
+    circle, path {
+      stroke-width: 14px;
+    }
+
+    .control-popup {
+      transform: translateX(0px) !important;
+      opacity: 1;
+      transition: 0.18s;
+    }
+  }
+
+  button {
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 70%;
+  }
+
+  svg {
+    width: 45px;
+    height: auto;
+  }
+
+  button:last-child {
+    svg {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.control-popup {
+  position: absolute;
+  right: 55px;
+  border-radius: 20px;
+  padding: 8px 18px;
+  background: url("./assets/repeat-white.png") center center / 80px 60px repeat;
+  font-family: 'Bloc';
+  font-size: 0.9em;
+  letter-spacing: 0.1em;
+  color: inherit;
+  transform: translateX(8px);
+  transition: 0.18s;
+  opacity: 0;
+}
+
+#prev-popup {
+  top: 8px;
+}
+
+#next-popup {
+  bottom: 8px;
+}
+
+
 
 /* @media (prefers-color-scheme: light) {
   :root {
@@ -174,16 +268,32 @@ body, html {
   }
 }
 
-@media screen and ((max-width:700px) or (max-height:500px)) {
+@media only screen and ((max-width:700px) or (max-height:500px)) {
   .border, .frames, .corners {
     visibility: hidden;
   }
 }
 
-@media screen and (max-width:700px) {
+@media only screen and (max-width:700px) {
   .canvas {
     width: 130%;
   }
+}
+
+@media only screen and (max-height: 740px) {
+  .canvas {
+    top: 40%;
+  }
+
+  .info-wrapper {
+    margin-top: 12%;
+  }
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 :root {
