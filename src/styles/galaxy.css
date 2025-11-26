@@ -1,1 +1,57 @@
 @import url('style.css');
+
+.fullscreen-overlay {
+  position: absolute;
+  display: flex;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #253130;
+  align-items: center;
+  /* opacity: 0.7; */
+  z-index: 998;
+}
+
+.title-content {
+  position: relative;
+  width: fit-content;
+  margin: auto;
+  text-align: center;
+
+  h1 {
+    font-size: 1.5em;
+    letter-spacing: .08em;
+    margin-bottom: 10px;
+    color: #96d75b;
+  }
+
+  h2 {
+    font-size: 4em;
+    letter-spacing: .05em;
+    background: url("../assets/repeat-white.png") center center / 80px 60px repeat;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: 0.253s linear infinite forwards scratchy;
+    opacity: 0.85;
+    line-height: 0.9;
+  }
+
+  h3 {
+    font-size: 1.4em;
+    letter-spacing: .1em;
+    margin-top: 10px;
+    /* color: #c3c1c0; */
+    color: #44514f;
+  }
+}
+
+.galaxy-spin {
+  animation: slowSpin 60s linear infinite;
+}
+
+/* The infinite orbit animation */
+@keyframes slowSpin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}

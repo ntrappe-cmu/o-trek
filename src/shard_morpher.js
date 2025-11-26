@@ -49,13 +49,32 @@ class ShardMorpher {
    * Features: Sorting (Left-to-Right), Wave Effect, Area-based Z-Index.
    */
   async morphTo(data, direction = 'ltr') {
-    // 1. Save the base of the animal/shard object
+    // 1. Clean up explosion state if applied
+    const canvas = document.getElementById('canvas');
+    if (!canvas) throw new Error('Container canvas not found');
+
+    if (canvas.classList.contains('galaxy-spin')) {
+      // 1.1 Stop container from spinning
+      canvas.classList.remove('galaxy-spin');
+
+      // 1.2 Remove elevated z-index
+      canvas.style.zIndex = 'auto';
+
+      // 1.3 Reset the shard transformation
+      this.shards.forEach(shard => {
+        // Slow transition back to center (1.5s)
+        shard.style.transition = 'transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1)'; 
+        shard.style.transform = 'translate3d(0,0,0) rotate(0deg)';
+      });
+    }
+
+    // 2. Save the base of the animal/shard object
     this.currentData = data;
 
-    // 2. Update the physical props (path/color) and sort visually
+    // 3. Update the physical props (path/color) and sort visually
     this.updateShardData(data);
 
-    // 3. Apply delay to create wave effect
+    // 4. Apply delay to create wave effect
     // We pass 'direction' here to decide if delays go 0->30 or 30->0
     return this.revealShards(direction);
   }
@@ -180,9 +199,48 @@ class ShardMorpher {
     });
   }
 
-  calculateDelay(index, direction, totalShards) {
-    const baseDelay = 100;
-    return direction === 'ltr' ? index * baseDelay : (totalShards - index + 1) * baseDelay;
+  async explode() {
+    const fragment = document.createDocumentFragment();
+    const canvas = document.getElementById('canvas');
+    if (!canvas) throw new Error('Container canvas not found');
+
+    // 1. Denote the special state canvas will be in and bring it above the popup
+    canvas.classList.add('galaxy-spin');
+    canvas.style.zIndex = 999;
+
+    const explosionColors = [
+      '#1b2423ff',
+      '#506562ff',
+      '#4d958fff',
+      '#06483dff',
+      '#2f3e32ff',
+    ];
+
+    // Push shards outward to make them orbit the title page
+    this.shards.forEach((shard, i) => {
+      // 2. Set the color logic
+      shard.style.backgroundColor = explosionColors[i % explosionColors.length];
+
+      // 3. Trajectory logic (random circle distribution)
+      const angle = Math.random() * Math.PI * 2;
+
+      // Distance: Push them far enough to hit edges (e.g., 60% of screen width)
+      // We add randomness so they don't form a perfect boring ring
+      const radius = (window.innerWidth / 2.7) + (Math.random() * 200);
+
+      const tx = Math.cos(angle) * radius;
+      const ty = Math.sin(angle) * radius;
+
+      // Random Tumble Rotation (shards spin as they fly out)
+      const rotation = Math.random() * 720;
+
+      // 4. Apply the Physics
+      // Transition: Fast explosion (1s) with an ease-out
+      shard.style.transition = 'transform 1s cubic-bezier(0.1, 1, 0.2, 1), background-color 0.5s';
+      
+      // Transform: Move to the calculated circle point
+      shard.style.transform = `translate3d(${tx}px, ${ty}px, 0) rotate(${rotation}deg)`;
+    });
   }
 
 }
