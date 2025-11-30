@@ -200,7 +200,6 @@ class ShardMorpher {
   }
 
   async explode() {
-    const fragment = document.createDocumentFragment();
     const canvas = document.getElementById('canvas');
     if (!canvas) throw new Error('Container canvas not found');
 
@@ -218,31 +217,73 @@ class ShardMorpher {
 
     // Push shards outward to make them orbit the title page
     this.shards.forEach((shard, i) => {
-      // 2. Set the color logic
-      shard.style.backgroundColor = explosionColors[i % explosionColors.length];
+      if (this.currentlySpotlighted != shard) {
+        // 2. Set the color logic
+        shard.style.backgroundColor = explosionColors[i % explosionColors.length];
 
-      // 3. Trajectory logic (random circle distribution)
-      const angle = Math.random() * Math.PI * 2;
+        // 3. Trajectory logic (random circle distribution)
+        const angle = Math.random() * Math.PI * 2;
 
-      // Distance: Push them far enough to hit edges (e.g., 60% of screen width)
-      // We add randomness so they don't form a perfect boring ring
-      const radius = (window.innerWidth / 2.7) + (Math.random() * 200);
+        // Distance: Push them far enough to hit edges (e.g., 60% of screen width)
+        // We add randomness so they don't form a perfect boring ring
+        const radius = (window.innerWidth / 2.7) + (Math.random() * 200);
 
-      const tx = Math.cos(angle) * radius;
-      const ty = Math.sin(angle) * radius;
+        const tx = Math.cos(angle) * radius;
+        const ty = Math.sin(angle) * radius;
 
-      // Random Tumble Rotation (shards spin as they fly out)
-      const rotation = Math.random() * 720;
+        // Random Tumble Rotation (shards spin as they fly out)
+        const rotation = Math.random() * 720;
 
-      // 4. Apply the Physics
-      // Transition: Fast explosion (1s) with an ease-out
-      shard.style.transition = 'transform 1s cubic-bezier(0.1, 1, 0.2, 1), background-color 0.5s';
-      
-      // Transform: Move to the calculated circle point
-      shard.style.transform = `translate3d(${tx}px, ${ty}px, 0) rotate(${rotation}deg)`;
+        // 4. Apply the Physics
+        // Transition: Fast explosion (1s) with an ease-out
+        shard.style.transition = 'transform 1s cubic-bezier(0.1, 1, 0.2, 1), background-color 0.5s';
+        
+        // Transform: Move to the calculated circle point
+        shard.style.transform = `translate3d(${tx}px, ${ty}px, 0) rotate(${rotation}deg)`;
+      }
     });
   }
 
+  async spotlight(index) {
+    const shard = this.shards[index];
+
+    const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+    const targetRect = document.getElementById('spotlight').getBoundingClientRect();
+
+    const path = shard.style.clipPath;
+    const bounds = getBoundsPercent(path);
+
+    const triangleCenterX = canvasRect.left + (canvasRect.width * (bounds.cx / 100));
+    const triangleCenterY = canvasRect.top + (canvasRect.height * (bounds.cy / 100));
+    
+    const targetCenterX = targetRect.left + (targetRect.width / 2);
+    const targetCenterY = targetRect.top + (targetRect.height / 2);
+
+    const deltaX = targetCenterX - triangleCenterX;
+    const deltaY = targetCenterY - triangleCenterY;
+
+    const clone = shard;
+    const cloneContainer = shard.parentElement;
+
+    clone.style.transformOrigin = `${bounds.cx}% ${bounds.cy}%`;
+    clone.parentElement.style.zIndex = 1003;
+    clone.style.zIndex = 1004;
+    cloneContainer.appendChild(clone);
+    document.getElementById('spotlight').appendChild(cloneContainer);
+
+    shard.style.visibility = 'hidden';
+    shard.style.transition = `0.3s visibility`;
+    shard.style.transition = 'transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.6s';
+    clone.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(3)`;
+
+    this.currentlySpotlighted = shard;
+  }
+  
+ 
+
+  async resetSpotlight(index) {
+
+  }
 }
 
 function getLeftEdge(polygonString) {
@@ -267,6 +308,37 @@ function getLeftEdge(polygonString) {
     }
 
     return minX;
+}
+
+ // Returns the Center (cx, cy) and Size (w, h) in percentages (0-100)
+function getBoundsPercent(polygonString) {
+  // Extract all numbers
+  const coords = polygonString.match(/([0-9.]+)%/g);
+  if (!coords) return { cx: 50, cy: 50, w: 0, h: 0 };
+
+  let minX = 1000, maxX = 0;
+  let minY = 1000, maxY = 0;
+
+  // Parse X,Y pairs
+  for (let i = 0; i < coords.length; i += 2) {
+    const x = parseFloat(coords[i]);
+    const y = parseFloat(coords[i+1]);
+
+    if (x < minX) minX = x;
+    if (x > maxX) maxX = x;
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  }
+
+  const w = maxX - minX;
+  const h = maxY - minY;
+
+  return {
+    cx: minX + (w / 2), // Center X %
+    cy: minY + (h / 2), // Center Y %
+    w: w,               // Width %
+    h: h                // Height %
+  };
 }
 
 function getShardWidth(polygonString) {

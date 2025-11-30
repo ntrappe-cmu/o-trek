@@ -135,6 +135,14 @@ body, html {
   }
 }
 
+h2 {
+  background: url("../assets/repeat-white.png") center center / 80px 60px repeat;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: scratchy 0.253s linear forwards infinite;
+  -webkit-animation: scratchy 0.253s linear forwards infinite;
+  -moz-animation: scratchy 0.253s linear forwards infinite;
+}
 
 ul {
   list-style: none;

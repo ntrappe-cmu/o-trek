@@ -35,7 +35,12 @@ const morpher = new ShardMorpher(40);
 // Load first animal immediately
 morpher.morphTo(woodpecker);
 
-// morpher.twitch(woodpecker2);
+// morpher.explode();
+
+// setTimeout(() => {
+//   morpher.spotlight(1);
+// }, 4000);
+
 
 
 // Switch to second animal after 3 seconds

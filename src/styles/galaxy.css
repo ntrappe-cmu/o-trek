@@ -2,7 +2,7 @@
 
 .fullscreen-overlay {
   position: absolute;
-  display: flex;
+  display: block;
   top: 0;
   left: 0;
   width: 100%;
@@ -13,45 +13,173 @@
   z-index: 998;
 }
 
-.title-content {
-  position: relative;
-  width: fit-content;
+
+.shard-selection {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  /* Responsive Size: 60% of the screen's smallest side */
+  width: 38vmin; 
+  height: 38vmin;
+  border: 1px solid blue;
+}
+
+#spotlight {
+  height: 0;
+  visibility: hidden;
+}
+
+#title-content {
+  width: 100%;
   margin: auto;
   text-align: center;
+  align-self: center;
+  flex: 1;
+  border: 1px solid red;
+
 
   h1 {
-    font-size: 1.5em;
     letter-spacing: .08em;
-    margin-bottom: 10px;
+    font-size: 1.5em;
     color: #96d75b;
+    margin-bottom: 10px;
   }
 
   h2 {
-    font-size: 4em;
     letter-spacing: .05em;
-    background: url("../assets/repeat-white.png") center center / 80px 60px repeat;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: 0.253s linear infinite forwards scratchy;
-    opacity: 0.85;
     line-height: 0.9;
+    opacity: 0.9;
+    font-size: 4em;
   }
 
   h3 {
     font-size: 1.4em;
     letter-spacing: .1em;
     margin-top: 10px;
-    /* color: #c3c1c0; */
     color: #44514f;
   }
 }
 
+.fullscreen-overlay[class~="spotlight"] {
+  #spotlight {
+    flex: 1;
+    visibility: visible;
+    aspect-ratio: 1 / 1;
+  }
+
+  #title-content {
+    align-self: flex-end;
+    flex: none;
+
+    h1 {
+      font-size: 1.2em;
+      margin-bottom: 2px;
+      color: inherit;
+    }
+
+    h2 {
+      font-size: 3.2em;
+    }
+  }
+}
+
+
+.orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  /* Responsive Size: 60% of the screen's smallest side */
+  width: 70vmin; 
+  height: 70vmin;
+  transform: translate(-50%, -50%);
+  /* animation: slowSpin 100s linear infinite; */
+  z-index: 1001;
+  border: 1px solid pink;
+}
+
+.dot {
+  position: absolute;
+  top: 44%;
+  left: 44%;
+  border-radius: 50%;
+  width: 54px;
+  height: 54px;
+  border: 1px solid rgba(133, 187, 90, 0);
+  transition: all 0.5s;
+  cursor: pointer;
+}
+
+.dot:hover {
+  /* opacity: 1; */
+  /* transform: scale(1); */
+  border: 1px solid rgba(133, 187, 90, 1);
+
+  .inner-dot {
+    opacity: 0.9;
+  }
+}
+
+.inner-dot {
+  position: absolute;
+  top: 44%;
+  left: 44%;
+  border-radius: 50%;
+  background-color: white;
+  opacity: 0.6;
+  width: 6px;
+  height: 6px;
+  transition: opacity 0.5s ease-in-out
+}
+
+.dot:nth-child(1)  { transform: rotate(24deg)  translate(30vmin); }
+.dot:nth-child(2)  { transform: rotate(48deg)  translate(30vmin); }
+.dot:nth-child(3)  { transform: rotate(72deg)  translate(30vmin); }
+.dot:nth-child(4)  { transform: rotate(96deg)  translate(30vmin); }
+.dot:nth-child(5)  { transform: rotate(120deg) translate(30vmin); }
+.dot:nth-child(6)  { transform: rotate(144deg) translate(30vmin); }
+.dot:nth-child(7)  { transform: rotate(168deg) translate(30vmin); }
+.dot:nth-child(8)  { transform: rotate(192deg) translate(30vmin); }
+.dot:nth-child(9)  { transform: rotate(216deg) translate(30vmin); }
+.dot:nth-child(10) { transform: rotate(240deg) translate(30vmin); }
+.dot:nth-child(11) { transform: rotate(264deg) translate(30vmin); }
+.dot:nth-child(12) { transform: rotate(288deg) translate(30vmin); }
+.dot:nth-child(13) { transform: rotate(312deg) translate(30vmin); }
+.dot:nth-child(14) { transform: rotate(336deg) translate(30vmin); }
+.dot:nth-child(15) { transform: rotate(360deg) translate(30vmin); }
+
 .galaxy-spin {
   animation: slowSpin 60s linear infinite;
+}
+
+.galaxy-spin.paused {
+  animation-play-state: paused;
+}
+
+
+@media only screen and (max-width:800px) {
+  .dot {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media only screen and (max-width:700px) {
+  .dot {
+    width: 42px;
+    height: 42px;
+  }
 }
 
 /* The infinite orbit animation */
 @keyframes slowSpin {
   from { transform: translate(-50%, -50%) rotate(0deg); }
   to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+:root {
+  --forest-green: #44514f;
 }
