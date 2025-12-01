@@ -34,11 +34,15 @@ body, html {
 }
 
 .stage {
-  display: grid;
-  align-items: center;
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  display: flex;
+  flex-direction: column;
   border: 1px solid orange;
-  width: 100%;
-  height: 100%;
+  width: 80%;
+  height: 80%;
+  margin: auto;
   /* transition: transform 0.8s cubic-bezier(0.88, 0.005, 0.1, 1); */
 }
 
@@ -136,7 +140,6 @@ body, html {
 }
 
 h2 {
-  background: url("../assets/repeat-white.png") center center / 80px 60px repeat;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: scratchy 0.253s linear forwards infinite;
@@ -155,11 +158,7 @@ ul {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  --dolphin-background: #64d6e2;
-  --woodpecker-background: #bca9e8;
-  --guanaco-background: #a9e8ad;
-  --smth-background: #87c4a3;
+  --lime: #96d75b;
 }
 
 * {

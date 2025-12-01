@@ -79,43 +79,6 @@ class ShardMorpher {
     return this.revealShards(direction);
   }
 
-  /**
-   * TWITCH: Used for nervous ticks, feathers ruffling.
-   * Features: Fast, No Sort (Identity Preserved), Elastic/Bouncy.
-   * No shards should be added or removed.
-   */
-  async twitch(data) {
-    // Update the DOM to the twitch (after pose) but don't update our saved model
-    if (!this.currentData) throw new Error('No state to return back to. Aborting.');
-
-    this.updateShardData(data);
-
-    await new Promise(resolve => {
-      this.shards.forEach((shard, i) => {
-        shard.style.transition = `clip-path 500ms cubic-bezier(0.5, 2, 0.5, 0.5)`;
-      });
-
-      setTimeout(resolve, 650);
-    });
-
-    this.updateShardData(this.currentData);
-    await new Promise(resolve => {
-      this.shards.forEach((shard, i) => {
-        shard.style.transition = `clip-path 400ms cubic-bezier(0.5, 0.5, 0.5, 1.5)`;
-      });
-
-      setTimeout(resolve, 500);
-    });
-  }
-
-  /**
-   * POSE: Used for Mouth Open / Head Tilt.
-   * Features: Moderate speed, Smooth, No Sort.
-   */
-  async pose(data) {
-    
-  }
-
   revealShards(direction) {
     return new Promise((resolve) => {
       const step = 30; // ms delay between each piece
@@ -236,7 +199,7 @@ class ShardMorpher {
 
         // 4. Apply the Physics
         // Transition: Fast explosion (1s) with an ease-out
-        shard.style.transition = 'transform 1s cubic-bezier(0.1, 1, 0.2, 1), background-color 0.5s';
+        shard.style.transition = 'transform 3s cubic-bezier(0.1, 1, 0.2, 1), background-color 0.5s';
         
         // Transform: Move to the calculated circle point
         shard.style.transform = `translate3d(${tx}px, ${ty}px, 0) rotate(${rotation}deg)`;

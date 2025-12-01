@@ -10,9 +10,14 @@
   background-color: #253130;
   align-items: center;
   /* opacity: 0.7; */
-  z-index: 998;
+  z-index: -1;
+  visibility: hidden;
 }
 
+.fullscreen-overlay.open {
+  z-index: 998;
+  visibility: visible;
+}
 
 .shard-selection {
   position: absolute;
@@ -40,15 +45,17 @@
   flex: 1;
   border: 1px solid red;
 
-
   h1 {
     letter-spacing: .08em;
     font-size: 1.5em;
-    color: #96d75b;
+    color: var(--lime);
     margin-bottom: 10px;
   }
 
   h2 {
+    background: url("../assets/repeat-white.png") center center / 80px 60px repeat;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     letter-spacing: .05em;
     line-height: 0.9;
     opacity: 0.9;
@@ -77,7 +84,6 @@
     h1 {
       font-size: 1.2em;
       margin-bottom: 2px;
-      color: inherit;
     }
 
     h2 {

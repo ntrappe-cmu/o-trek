@@ -33,11 +33,14 @@
           <div class="canvas direction-rtl" id="canvas">
           <!-- Individual shard containers -->
           </div>
-        </div>
-        <div class="info-wrapper">
-          <ul>
-            <li><h2>MAGELLANIC WOODPECKER</h2></li>
-          </ul>
+          <div class="info-wrapper">
+            <ul>
+              <li>
+                <h3>PIECE<span id="shard-index-title">10</span></h3>
+              </li>
+              <li><h2 id="shard-main-title">TITLE HERE</h2></li>
+            </ul>
+          </div>
         </div>
         <nav class="nav-controls">
           <span id="prev-btn-wrapper">
@@ -63,8 +66,8 @@
             </div>
           </span>
         </nav>
-        <!-- <div class="fullscreen-overlay spotlight"> -->
-          <!-- <div class="shard-selection">
+        <div class="fullscreen-overlay spotlight"> -->
+          <div class="shard-selection">
             <span id="spotlight"></span>
             <span id="title-content">
               <h1>IN PIECES</h1>
@@ -73,7 +76,7 @@
               <h3>EXPLORING PATAGONIA</h3>
             </span>
           </div>
-        </div> -->
+        </div>
         <!-- <div class="orbit">
           <span class="dot"><span class="inner-dot"></span></span>
           <span class="dot"><span class="inner-dot"></span></span>
@@ -90,8 +93,22 @@
           <span class="dot"><span class="inner-dot"></span></span>
           <span class="dot"><span class="inner-dot"></span></span>
           <span class="dot"><span class="inner-dot"></span></span>
-        </div>
-      </div> -->
+        </div> -->
+        <nav class="info-controls">
+          <span id="menu-btn-wrapper">
+            <button class="open" id="open-close-btn" aria-label="open menu">
+              <svg width="249" height="249" viewBox="0 0 249 249" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="124.5" cy="124.5" r="119.5" stroke="white" stroke-width="10"/>
+                <rect x="117.147" y="62" width="13.7868" height="125" rx="6.89338" fill="white"/>
+                <rect x="62" y="130.934" width="13.7868" height="125" rx="6.89338" transform="rotate(-90 62 130.934)" fill="white"/>
+              </svg>
+            </button>
+            <div class="info-popup" id="menu-popup" aria-label="menu of all items">
+              ALL PIECES
+            </div>
+          </span>
+        </nav>
+      </div>
     </main>
     <script type="module" src="src/main.js"></script>
   </body>
