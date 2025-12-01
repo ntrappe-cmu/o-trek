@@ -111,7 +111,7 @@ class Controller {
   }
 
   init() {
-    // 1. Bind Events
+    // 1. Bind events
     window.addEventListener('keydown', (e) => this.handleKeydown(e));
     this.ui.prevBtn.addEventListener('click', () => this.navigate(-1));
     this.ui.nextBtn.addEventListener('click', () => this.navigate(1));
@@ -119,7 +119,7 @@ class Controller {
       this.toggleMenu(this.ui.openCloseBtn.classList.contains('open'))
     });
 
-    // 2. Load Initial Animal (Instant, no await needed for fetch)
+    // 2. Load initial animal (instant, no await needed for fetch)
     this.loadShards(0);
 
     // 3. Set dots for orbit to have associated animal
@@ -212,6 +212,11 @@ class Controller {
         // NEXT
         this.navigate(1);
         break;
+
+      case 'Escape':
+        // EXIT OUT OF MENU
+        if (!this.ui.openCloseBtn.classList.contains('open')) this.toggleMenu(false);
+        break;
     }
   }
 
@@ -271,22 +276,22 @@ const app = new Controller();
 app.init();
 
 
-try {
-  const name = 'hippo';
-  console.log('go!');
-  const res = await fetch(`/svg/${name}.svg`);
-  if (!res.ok) throw new Error('Failed to load SVG: ' + res.status);
+// try {
+//   const name = 'hippo';
+//   console.log('go!');
+//   const res = await fetch(`/svg/${name}.svg`);
+//   if (!res.ok) throw new Error('Failed to load SVG: ' + res.status);
   
-  // 1. Get the raw text
-  const svgText = await res.text();
+//   // 1. Get the raw text
+//   const svgText = await res.text();
 
-  // 2. Pass the RAW STRING directly to the function
-  // Do not parse it with DOMParser here.
-  const shardDataJson = serializePolygonData(svgText, name);
+//   // 2. Pass the RAW STRING directly to the function
+//   // Do not parse it with DOMParser here.
+//   const shardDataJson = serializePolygonData(svgText, name);
   
-  localStorage.setItem(name, JSON.stringify(shardDataJson)); // Ensure you stringify before storage
+//   localStorage.setItem(name, JSON.stringify(shardDataJson)); // Ensure you stringify before storage
 
-} catch (err) {
-  console.error(err);
-}
+// } catch (err) {
+//   console.error(err);
+// }
 
