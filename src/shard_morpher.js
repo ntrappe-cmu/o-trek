@@ -74,9 +74,15 @@ class ShardMorpher {
       shard.style.transition = 'transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1)'; 
     });
 
+    // 3. UPDATE STATE
+    // We must tell the shards what they are turning into (New Color, New Shape, New Z-Index)
+    this.currentData = data;
+    this.updateShardData(data);
+
     if (needsGravity) {
-      // If we exploded, we need to pull shards in and then morph into animal
-      // We don't use the standard wave. Delegate to helper function.
+      // 4. TRIGGER GRAVITY
+      // Now that the properties are set, we rely on the CSS transitions 
+      // (defined above in step 2) to animate them to these new values.
       return this.gravity(data, {
         sort: true,             
         stagger: 20,            
@@ -85,14 +91,7 @@ class ShardMorpher {
         direction: direction
       });
     } else {
-      // Not exploded so we need to use the standard wave with direction to
-      // morph into the next animal
-
-      // Save base animal then update physical props
-      this.currentData = data;
-      this.updateShardData(data);
-
-      // Apply delay to create wave effect
+      // 5. STANDARD WAVE
       // Direction decides if delays go 0->30 or 30->0
       return this.revealShards(direction);
     }

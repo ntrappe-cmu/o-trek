@@ -8,6 +8,7 @@ import pudu from './assets/json/pudu.json';
 import toad from './assets/json/toad.json';
 import penguin from './assets/json/penguin.json';
 import dragon from './assets/json/dragon.json';
+import hippo from './assets/json/hippo.json';
 import { serializePolygonData } from './shard.js';
 
 // THE LOOKUP MAP (connects data to objects)
@@ -34,6 +35,13 @@ const SHARDS_MAP = [
     status: 'NORMAL'
   },
   {
+    name: 'HIPPOCAMELUS',
+    color: '#F5C764',
+    data: hippo,
+    category: 'MAMMAL',
+    status: 'ENDANGERED'
+  },
+  {
     name: 'PUDU',
     color: '#f8a0bbff',
     data: pudu,
@@ -56,7 +64,7 @@ const SHARDS_MAP = [
   },
   {
     name: 'GUANACO',
-    color: '#d3716f',
+    color: '#ec6967ff',
     data: guanaco,
     category: 'MAMMAL',
     status: 'NORMAL'
@@ -264,7 +272,8 @@ app.init();
 
 
 try {
-  const name = 'toad';
+  const name = 'hippo';
+  console.log('go!');
   const res = await fetch(`/svg/${name}.svg`);
   if (!res.ok) throw new Error('Failed to load SVG: ' + res.status);
   
