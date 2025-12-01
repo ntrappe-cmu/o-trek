@@ -1,13 +1,13 @@
 import ShardMorpher from './shard_morpher.js';
-import condor from '../public/json/condor.json';
-import guanaco from '../public/json/guanaco.json';
-import dolphin from '../public/json/dolphin.json'
-import mara from '../public/json/mara.json'
-import woodpecker from '../public/json/woodpecker.json';
-import pudu from '../public/json/pudu.json';
-import toad from '../public/json/toad.json';
-import penguin from '../public/json/penguin.json';
-import dragon from '../public/json/dragon.json';
+import condor from '/src/assets/json/condor.json';
+import guanaco from '/src/assets/json/guanaco.json';
+import dolphin from '/src/assets/json/dolphin.json'
+import mara from '/src/assets/json/mara.json'
+import woodpecker from '/src/assets/json/woodpecker.json';
+import pudu from '/src/assets/json/pudu.json';
+import toad from '/src/assets/json/toad.json';
+import penguin from '/src/assets/json/penguin.json';
+import dragon from '/src/assets/json/dragon.json';
 import { serializePolygonData } from './shard.js';
 
 // THE LOOKUP MAP (connects data to objects)
