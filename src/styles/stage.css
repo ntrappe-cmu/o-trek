@@ -9,14 +9,10 @@
   width: 50%;
   height: auto;
   max-width: 1500px;
-  /* margin: auto; */
-  /* transition: 0.33s cubic-bezier(0.7, 0.3, 0, 1); */
-  border: 1px solid red;
   min-height: 100px;
 }
 
 .info-wrapper {
-  border: 1px solid cyan;
   position: absolute;
   bottom: 5%;
   width: 100%;
@@ -51,7 +47,6 @@
     background: url("../assets/repeat-white.png") center center / 50px 60px repeat;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    animation: 0.253s linear infinite forwards scratchy;
     line-height: 0.85;
     opacity: 0.7;
   }

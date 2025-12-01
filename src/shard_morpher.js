@@ -49,34 +49,53 @@ class ShardMorpher {
    * Features: Sorting (Left-to-Right), Wave Effect, Area-based Z-Index.
    */
   async morphTo(data, direction = 'ltr') {
-    // 1. Clean up explosion state if applied
     const canvas = document.getElementById('canvas');
     if (!canvas) throw new Error('Container canvas not found');
 
+    // To track explosion state
+    const needsGravity = this.isExploded;
+    this.isExploded = false;
+
+    // 1. Clean up explosion state if applied
     if (canvas.classList.contains('galaxy-spin')) {
-      // 1.1 Stop container from spinning
+      // Stop container from spinning
       canvas.classList.remove('galaxy-spin');
 
-      // 1.2 Remove elevated z-index
+      // Reset Layering: Send canvas back behind the UI
       canvas.style.zIndex = 'auto';
-
-      // 1.3 Reset the shard transformation
-      this.shards.forEach(shard => {
-        // Slow transition back to center (1.5s)
-        shard.style.transition = 'transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1)'; 
-        shard.style.transform = 'translate3d(0,0,0) rotate(0deg)';
-      });
     }
 
-    // 2. Save the base of the animal/shard object
-    this.currentData = data;
+    // 2. Prepare shards for return
+    // If we were exploded, the shards are miles away. 
+    // We need to pull them back to (0,0) so they form the animal.
+    this.shards.forEach(shard => {
+      // Slow transition back to center (1.5s)
+      shard.style.transform = 'translate3d(0,0,0) rotate(0deg)';
+      shard.style.transition = 'transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1)'; 
+    });
 
-    // 3. Update the physical props (path/color) and sort visually
-    this.updateShardData(data);
+    if (needsGravity) {
+      // If we exploded, we need to pull shards in and then morph into animal
+      // We don't use the standard wave. Delegate to helper function.
+      return this.gravity(data, {
+        sort: true,             
+        stagger: 20,            
+        duration: 800,          
+        easing: 'cubic-bezier(0.6, 0.05, 0.28, 0.91)', 
+        direction: direction
+      });
+    } else {
+      // Not exploded so we need to use the standard wave with direction to
+      // morph into the next animal
 
-    // 4. Apply delay to create wave effect
-    // We pass 'direction' here to decide if delays go 0->30 or 30->0
-    return this.revealShards(direction);
+      // Save base animal then update physical props
+      this.currentData = data;
+      this.updateShardData(data);
+
+      // Apply delay to create wave effect
+      // Direction decides if delays go 0->30 or 30->0
+      return this.revealShards(direction);
+    }
   }
 
   revealShards(direction) {
@@ -162,14 +181,42 @@ class ShardMorpher {
     });
   }
 
+  async gravity(data, options) {
+    this.shards.forEach((shard, i) => {
+      const target = data.shards[i + 1]; // Assuming 1-based IDs
+      
+      if (target) {
+        // 1. Set Shape
+        shard.style.clipPath = target.path;
+        shard.style.webkitClipPath = target.path;
+        
+        // 2. Set Color
+        shard.style.backgroundColor = target.fill; // Or data.color
+
+        // 3. CRITICAL: Ensure they sit at 0,0 (Center)
+        // This ensures that if they were exploded, they come home.
+        shard.style.transform = 'translate3d(0,0,0) rotate(0deg)';
+        shard.style.opacity = 1;
+      } else {
+        // Hide unused shards
+        shard.style.opacity = 0;
+      }
+    });
+  }
+
   async explode() {
     const canvas = document.getElementById('canvas');
     if (!canvas) throw new Error('Container canvas not found');
 
-    // 1. Denote the special state canvas will be in and bring it above the popup
+    // Mark this so we track state
+    this.isExploded = true;
+
+    // 1. Activate galaxy mode
     canvas.classList.add('galaxy-spin');
+    // Bring canvas ABOVE the dark overlay (z-999) but below text
     canvas.style.zIndex = 999;
 
+    // Cycle between these colors
     const explosionColors = [
       '#1b2423ff',
       '#506562ff',
@@ -203,49 +250,11 @@ class ShardMorpher {
         
         // Transform: Move to the calculated circle point
         shard.style.transform = `translate3d(${tx}px, ${ty}px, 0) rotate(${rotation}deg)`;
+
+        // Ensure it's visible
+        shard.style.opacity = 1;
       }
     });
-  }
-
-  async spotlight(index) {
-    const shard = this.shards[index];
-
-    const canvasRect = document.getElementById('canvas').getBoundingClientRect();
-    const targetRect = document.getElementById('spotlight').getBoundingClientRect();
-
-    const path = shard.style.clipPath;
-    const bounds = getBoundsPercent(path);
-
-    const triangleCenterX = canvasRect.left + (canvasRect.width * (bounds.cx / 100));
-    const triangleCenterY = canvasRect.top + (canvasRect.height * (bounds.cy / 100));
-    
-    const targetCenterX = targetRect.left + (targetRect.width / 2);
-    const targetCenterY = targetRect.top + (targetRect.height / 2);
-
-    const deltaX = targetCenterX - triangleCenterX;
-    const deltaY = targetCenterY - triangleCenterY;
-
-    const clone = shard;
-    const cloneContainer = shard.parentElement;
-
-    clone.style.transformOrigin = `${bounds.cx}% ${bounds.cy}%`;
-    clone.parentElement.style.zIndex = 1003;
-    clone.style.zIndex = 1004;
-    cloneContainer.appendChild(clone);
-    document.getElementById('spotlight').appendChild(cloneContainer);
-
-    shard.style.visibility = 'hidden';
-    shard.style.transition = `0.3s visibility`;
-    shard.style.transition = 'transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.6s';
-    clone.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(3)`;
-
-    this.currentlySpotlighted = shard;
-  }
-  
- 
-
-  async resetSpotlight(index) {
-
   }
 }
 

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="src/styles/stage.css">
     <link rel="stylesheet" href="src/styles/style.css">
     <link rel="stylesheet" href="src/styles/galaxy.css">
+    <base href="/" />
     <title>O-Trek</title>
   </head>
   <body>
@@ -66,10 +67,9 @@
             </div>
           </span>
         </nav>
-        <div class="fullscreen-overlay spotlight"> -->
+        <div class="fullscreen-overlay spotlight"> 
           <div class="shard-selection">
-            <span id="spotlight"></span>
-            <span id="title-content">
+            <span id="title-content" class="general">
               <h1>IN PIECES</h1>
               <h2>10 THINGS</h2>
               <h2>10 PIECES</h2>
@@ -77,7 +77,7 @@
             </span>
           </div>
         </div>
-        <!-- <div class="orbit">
+        <div id="orbit" class="hidden">
           <span class="dot"><span class="inner-dot"></span></span>
           <span class="dot"><span class="inner-dot"></span></span>
           <span class="dot"><span class="inner-dot"></span></span>
@@ -88,12 +88,7 @@
           <span class="dot"><span class="inner-dot"></span></span>
           <span class="dot"><span class="inner-dot"></span></span>
           <span class="dot"><span class="inner-dot"></span></span>
-          <span class="dot"><span class="inner-dot"></span></span>
-          <span class="dot"><span class="inner-dot"></span></span>
-          <span class="dot"><span class="inner-dot"></span></span>
-          <span class="dot"><span class="inner-dot"></span></span>
-          <span class="dot"><span class="inner-dot"></span></span>
-        </div> -->
+        </div>
         <nav class="info-controls">
           <span id="menu-btn-wrapper">
             <button class="open" id="open-close-btn" aria-label="open menu">

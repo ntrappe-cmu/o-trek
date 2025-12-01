@@ -15,47 +15,65 @@ const SHARDS_MAP = [
   {
     name: 'MAGELLANIC WOODPECKER',
     color: '#c290d9ff',
-    data: woodpecker
+    data: woodpecker,
+    category: 'BIRD',
+    status: 'NORMAL'
   },
   {
     name: 'BULLOCK\'S FALSE TOAD',
     color: '#60b49aff',
-    data: toad
+    data: toad,
+    category: 'AMPHIBIAN',
+    status: 'ENDANGERED'
   },
   {
     name: 'MAGELLANIC PENGUIN',
     color: '#8293e0',
-    data: penguin
+    data: penguin,
+    category: 'BIRD',
+    status: 'NORMAL'
   },
   {
     name: 'PUDU',
     color: '#f8a0bbff',
-    data: pudu
+    data: pudu,
+    category: 'MAMMAL',
+    status: 'THREATENED'
   },
   {
     name: 'MARA',
     color: '#7fae97ff',
-    data: mara
+    data: mara,
+    category: 'MAMMAL',
+    status: 'THREATENED'
   },
   {
     name: 'ICE DRAGON',
     color: '#40cde3ff',
-    data: dragon
+    data: dragon,
+    category: 'INSECT',
+    status: 'ENDANGERED'
   },
   {
     name: 'GUANACO',
     color: '#d3716f',
-    data: guanaco
+    data: guanaco,
+    category: 'MAMMAL',
+    status: 'NORMAL'
   },
   {
     name: 'ANDEAN CONDOR',
     color: '#8ab68fff',
-    data: condor
+    data: condor,
+    category: 'BIRD',
+    status: 'VULNERABLE'
   },
   {
-    name: 'COMMERSON\S DOLPHIN',
+    name: 'COMMERSON\'S DOLPHIN',
     color: '#3dc0d5ff',
-    data: dolphin
+    data: dolphin,
+    category: 'MAMMAL',
+    status: 'NORMAL'
   }
 ];
 
@@ -69,6 +87,7 @@ class Controller {
     // DOM elements to update
     this.ui = {
       title: document.getElementById('shard-main-title'),
+      overlayTitle: document.getElementById('title-content'),
       index: document.getElementById('shard-index-title'),
       prevBtn: document.querySelector('.prev-btn'),
       nextBtn: document.querySelector('.next-btn'),
@@ -78,7 +97,8 @@ class Controller {
       menuLabel: document.getElementById('menu-popup'),
       body: document.getElementById('exhibition'),
       canvas: document.getElementById('canvas'),
-      overlay: document.querySelector('.fullscreen-overlay')
+      overlay: document.querySelector('.fullscreen-overlay'),
+      orbit: document.getElementById('orbit')
     };
   }
 
@@ -88,29 +108,83 @@ class Controller {
     this.ui.prevBtn.addEventListener('click', () => this.navigate(-1));
     this.ui.nextBtn.addEventListener('click', () => this.navigate(1));
     this.ui.openCloseBtn.addEventListener('click', () => {
-      this.openOverlay(this.ui.openCloseBtn.classList.contains('open'))
+      this.toggleMenu(this.ui.openCloseBtn.classList.contains('open'))
     });
 
     // 2. Load Initial Animal (Instant, no await needed for fetch)
     this.loadShards(0);
+
+    // 3. Set dots for orbit to have associated animal
+    this.setDots();
   }
 
-  openOverlay(toOpen) {
-    if (toOpen) {
-      console.log('open!');
-      this.morpher.explode();
+  setDots() {
+    const dots = this.ui.orbit.children;
+    SHARDS_MAP.forEach((shard, index) => {
+      const dot = dots[index];
+      dot.style.borderColor = shard.color;
+
+      dot.addEventListener('click', () => {
+        this.currentIndex = index;
+        this.toggleMenu(false);
+      });
+
+      dot.addEventListener('mouseover', () => {
+        this.ui.overlayTitle.classList.remove('general');
+        this.ui.overlayTitle.style.color = shard.color;
+        this.ui.overlayTitle.innerHTML = `
+          <h1>SHARD ${index + 1}</h1>
+          <h2>${shard.name}</h2>
+          <h3>${shard.category}<span>${shard.status}</span></h3>
+        `;
+      })
+
+      dot.addEventListener('mouseout', () => {
+        this.ui.overlayTitle.classList.add('general');
+        this.ui.overlayTitle.innerHTML = `
+          <h1>IN PIECES</h1>
+          <h2>10 THINGS</h2>
+          <h2>10 PIECES</h2>
+          <h3>EXPLORING PATAGONIA</h3>
+        `;
+      });
+    });
+  }
+
+  async toggleMenu(shouldOpen) {
+    if (this.isTransitioning) return;
+    this.isTransitioning = true;
+    this.isMenuOpen = shouldOpen;
+
+    if (shouldOpen) {  
+      // 1. Hide UI
       this.ui.openCloseBtn.classList.remove('open');
       this.ui.openCloseBtn.classList.add('close');
       this.ui.overlay.classList.add('open');
+      this.ui.orbit.classList.remove('hidden');
       this.ui.menuLabel.innerText = 'EXIT';
       this.ui.menuLabel.style.color = '#262c25';
+
+      // 2. Trigger Physics
+      await this.morpher.explode();
     } else {
-      console.log('close!');
       this.ui.openCloseBtn.classList.remove('close');
       this.ui.openCloseBtn.classList.add('open');
       this.ui.overlay.classList.remove('open');
+      this.ui.orbit.classList.add('hidden');
       this.ui.menuLabel.innerText = 'ALL PIECES';
+      
+      // 3. Trigger Physics (MorphTo handles the implosion animation)
+      const shards = SHARDS_MAP[this.currentIndex];
+      this.updateUI(shards, this.currentIndex); // Update text immediately
+      
+      // This function inside ShardMorpher will automatically:
+      // - Stop the galaxy spin
+      // - Reset Z-Index
+      // - Pull shards back to center
+      await this.morpher.morphTo(shards.data);
     }
+    this.isTransitioning = false;
   }
 
   handleKeydown(e) {
@@ -148,7 +222,6 @@ class Controller {
   }
 
   async loadShards(index, direction = 'ltr') {
-    console.log(`move to ${index} with wave ${direction}`);
     this.isTransitioning = true;
     this.currentIndex = index;
 
