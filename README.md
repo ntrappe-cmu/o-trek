@@ -1,7 +1,8 @@
-# Patagonia in Pieces
+# Patagonia in Pieces ("O-Trek")
 An interactive visual exhibition exploring 10 species from the Patagonia region. This project uses CSS polygons to fracture animals into 40 pieces, morphing them fluidly from one species to the next using standard web technologies.
 
 #### Nicole Trappe | SSUI Fall 2025
+#### https://ntrappe-cmu.github.io/o-trek/
 
 ## Quick Start
 To run this project locally:
@@ -12,6 +13,8 @@ To run this project locally:
 npm install
 npm run build
 ```
+> [!NOTE]
+> Uses babel-jest `^29.7.0`, jest `^29.7.0`, and Vite.
 
 2. **Run Development Server:**
 
