@@ -28,7 +28,7 @@ let SHARDS_MAP = [
   {
     name: 'BULLOCK\'S FALSE TOAD',
     color: '#60b49aff',
-    dataPath: './assets/json/toad.json',
+    dataPath: './src/assets/json/toad.json',
     category: 'AMPHIBIAN',
     status: 'ENDANGERED'
   },
