@@ -11,90 +11,80 @@
  */
 
 import ShardMorpher from './shard_morpher.js';
-import condor from './assets/json/condor.json' assert { type: 'json' };
-import guanaco from './assets/json/guanaco.json' assert { type: 'json' };
-import dolphin from './assets/json/dolphin.json' assert { type: 'json' };
-import mara from './assets/json/mara.json' assert { type: 'json' };
-import woodpecker from './assets/json/woodpecker.json' assert { type: 'json' };
-import pudu from './assets/json/pudu.json' assert { type: 'json' };
-import toad from './assets/json/toad.json' assert { type: 'json' };
-import penguin from './assets/json/penguin.json' assert { type: 'json' };
-import dragon from './assets/json/dragon.json' assert { type: 'json' };
-import hippo from './assets/json/hippo.json' assert { type: 'json' };
 
 /**
  * @constant {Array<Object>} SHARDS_MAP
  * @description Registry of all available animals and their associated metadata.
  * The order of this array determines the navigation order (Next/Prev).
  */
-const SHARDS_MAP = [
+let SHARDS_MAP = [
   {
     name: 'MAGELLANIC WOODPECKER',
     color: '#c290d9ff',
-    data: woodpecker,
+    dataPath: './assets/json/woodpecker.json',
     category: 'BIRD',
     status: 'NORMAL'
   },
   {
     name: 'BULLOCK\'S FALSE TOAD',
     color: '#60b49aff',
-    data: toad,
+    dataPath: './assets/json/toad.json',
     category: 'AMPHIBIAN',
     status: 'ENDANGERED'
   },
   {
     name: 'MAGELLANIC PENGUIN',
     color: '#8293e0',
-    data: penguin,
+    dataPath: './assets/json/penguin.json',
     category: 'BIRD',
     status: 'NORMAL'
   },
   {
     name: 'HIPPOCAMELUS',
     color: '#F5C764',
-    data: hippo,
+    dataPath: './assets/json/hippo.json',
     category: 'MAMMAL',
     status: 'ENDANGERED'
   },
   {
     name: 'PUDU',
     color: '#f8a0bbff',
-    data: pudu,
+    dataPath: './assets/json/pudu.json',
     category: 'MAMMAL',
     status: 'THREATENED'
   },
   {
     name: 'MARA',
     color: '#7fae97ff',
-    data: mara,
+    dataPath: './assets/json/mara.json',
     category: 'MAMMAL',
     status: 'THREATENED'
   },
   {
     name: 'ICE DRAGON',
     color: '#40cde3ff',
-    data: dragon,
+    dataPath: './assets/json/dragon.json',
     category: 'INSECT',
     status: 'ENDANGERED'
   },
   {
     name: 'GUANACO',
     color: '#ec6967ff',
-    data: guanaco,
+    dataPath: './assets/json/guanaco.json',
     category: 'MAMMAL',
     status: 'NORMAL'
   },
   {
     name: 'ANDEAN CONDOR',
     color: '#8ab68fff',
-    data: condor,
+    dataPath: './assets/json/condor.json',
     category: 'BIRD',
     status: 'VULNERABLE'
   },
   {
     name: 'COMMERSON\'S DOLPHIN',
     color: '#3dc0d5ff',
-    data: dolphin,
+    dataPath: './assets/json/dolphin.json',
     category: 'MAMMAL',
     status: 'NORMAL'
   }
@@ -146,7 +136,28 @@ class Controller {
    * Bootstraps the application.
    * Sets up event listeners, generates dynamic UI elements, and loads the first animal.
    */
-  init() {
+  async init() {
+    // Use fetch to load all JSON data in parallel for better performance.
+    const dataPromises = SHARDS_MAP.map(shard => 
+      fetch(shard.dataPath).then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status} for ${shard.dataPath}`);
+        }
+        return response.json();
+      })
+    );
+
+    try {
+      const allData = await Promise.all(dataPromises);
+      // Once loaded, assign the data back to our SHARDS_MAP
+      SHARDS_MAP.forEach((shard, index) => {
+        shard.data = allData[index];
+      });
+    } catch (error) {
+      console.error("Failed to load animal data:", error);
+      return; // Stop initialization if data fails to load
+    }
+
     this.bindEvents();
     this.setupOrbitDots();
     this.loadShards(0); // Start with first animal (assumes min one)
