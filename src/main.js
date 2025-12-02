@@ -1,3 +1,15 @@
+/**
+ * @file main.js
+ * @description Main controller for the "In Pieces" interactive exhibition.
+ * This file orchestrates the interaction between the static data (SHARDS_MAP),
+ * the UI DOM elements, and the ShardMorpher animation engine.
+ * * Key Responsibilities:
+ * - Handling user input (Clicks, Keys, Menu Toggles)
+ * - Managing application state (Current Animal, Menu Open/Closed)
+ * - Synchronizing UI text/colors with the animation state.
+ * * @version 1.0.0
+ */
+
 import ShardMorpher from './shard_morpher.js';
 import condor from './assets/json/condor.json';
 import guanaco from './assets/json/guanaco.json';
@@ -9,9 +21,12 @@ import toad from './assets/json/toad.json';
 import penguin from './assets/json/penguin.json';
 import dragon from './assets/json/dragon.json';
 import hippo from './assets/json/hippo.json';
-import { serializePolygonData } from './shard.js';
 
-// THE LOOKUP MAP (connects data to objects)
+/**
+ * @constant {Array<Object>} SHARDS_MAP
+ * @description Registry of all available animals and their associated metadata.
+ * The order of this array determines the navigation order (Next/Prev).
+ */
 const SHARDS_MAP = [
   {
     name: 'MAGELLANIC WOODPECKER',
@@ -85,24 +100,39 @@ const SHARDS_MAP = [
   }
 ];
 
+// --- MAIN CONTROLLER ---
+
+/**
+ * @class Controller
+ * @description Central logic handler for the application.
+ */
 class Controller {
+  /**
+   * Initializes the morpher engine, state variables, and caches DOM references.
+   */
   constructor() {
     this.morpher = new ShardMorpher(40); // Initialize visual engine
-    this.shardsList = [];
-    this.currentIndex = 0;
+    this.currentIndex = 0; // Current animal displayed
     this.isTransitioning = false; // Prevent spamming buttons
+    this.isMenuOpen = false;
 
-    // DOM elements to update
+    // Cache DOM Elements for performance
     this.ui = {
       title: document.getElementById('shard-main-title'),
       overlayTitle: document.getElementById('title-content'),
       index: document.getElementById('shard-index-title'),
+
+      // Buttons
       prevBtn: document.querySelector('.prev-btn'),
       nextBtn: document.querySelector('.next-btn'),
+      openCloseBtn: document.getElementById('open-close-btn'),
+
+      // Labels
       prevLabel: document.getElementById('prev-popup'),
       nextLabel: document.getElementById('next-popup'),
-      openCloseBtn: document.getElementById('open-close-btn'),
       menuLabel: document.getElementById('menu-popup'),
+
+      // Containers
       body: document.getElementById('exhibition'),
       canvas: document.getElementById('canvas'),
       overlay: document.querySelector('.fullscreen-overlay'),
@@ -110,116 +140,88 @@ class Controller {
     };
   }
 
+  // === INITIALIZATION ===
+
+  /**
+   * Bootstraps the application.
+   * Sets up event listeners, generates dynamic UI elements, and loads the first animal.
+   */
   init() {
-    // 1. Bind events
-    window.addEventListener('keydown', (e) => this.handleKeydown(e));
-    this.ui.prevBtn.addEventListener('click', () => this.navigate(-1));
-    this.ui.nextBtn.addEventListener('click', () => this.navigate(1));
-    this.ui.openCloseBtn.addEventListener('click', () => {
-      this.toggleMenu(this.ui.openCloseBtn.classList.contains('open'))
-    });
-
-    // 2. Load initial animal (instant, no await needed for fetch)
-    this.loadShards(0);
-
-    // 3. Set dots for orbit to have associated animal
-    this.setDots();
+    this.bindEvents();
+    this.setupOrbitDots();
+    this.loadShards(0); // Start with first animal (assumes min one)
   }
 
-  setDots() {
-    const dots = this.ui.orbit.children;
+  /**
+   * Binds global and element-specific event listeners (Keyboard, Clicks).
+   */
+  bindEvents() {
+    // Keyboard Navigation
+    window.addEventListener('keydown', (e) => this.handleKeydown(e));
+
+    // Button Navigation
+    this.ui.prevBtn.addEventListener('click', () => this.navigate(-1));
+    this.ui.nextBtn.addEventListener('click', () => this.navigate(1));
+
+    // Menu Toggle
+    this.ui.openCloseBtn.addEventListener('click', () => {
+      // Toggle logic based on current state
+      const isOpen = this.ui.openCloseBtn.classList.contains('open');
+      this.toggleMenu(isOpen); 
+    });
+  }
+
+  /**
+   * Generates the circular navigation dots based on the SHARDS_MAP length.
+   * Assigns click and hover handlers to each dot.
+   */
+  setupOrbitDots() {
+    const dots = Array.from(this.ui.orbit.children);
+    
+    // For each dot, get is associated animal color
     SHARDS_MAP.forEach((shard, index) => {
       const dot = dots[index];
+      if (!dot) return;
+
       dot.style.borderColor = shard.color;
 
+      // Click Dot -> Close Menu & Morph to Animal
       dot.addEventListener('click', () => {
         this.currentIndex = index;
         this.toggleMenu(false);
       });
 
-      dot.addEventListener('mouseover', () => {
-        this.ui.overlayTitle.classList.remove('general');
-        this.ui.overlayTitle.style.color = shard.color;
-        this.ui.overlayTitle.innerHTML = `
-          <h1>SHARD ${index + 1}</h1>
-          <h2>${shard.name}</h2>
-          <h3>${shard.category}<span>${shard.status}</span></h3>
-        `;
-      })
-
-      dot.addEventListener('mouseout', () => {
-        this.ui.overlayTitle.classList.add('general');
-        this.ui.overlayTitle.innerHTML = `
-          <h1>IN PIECES</h1>
-          <h2>10 THINGS</h2>
-          <h2>10 PIECES</h2>
-          <h3>EXPLORING PATAGONIA</h3>
-        `;
-      });
+      // Hover Dot -> Show Info
+      dot.addEventListener('mouseover', () => this.updateOverlayContent(shard, index));
+      dot.addEventListener('mouseout', () => this.updateOverlayContent(null));
     });
   }
 
-  async toggleMenu(shouldOpen) {
-    if (this.isTransitioning) return;
-    this.isTransitioning = true;
-    this.isMenuOpen = shouldOpen;
+  // === LOGIC & NAVIGATION ===
 
-    if (shouldOpen) {  
-      // 1. Hide UI
-      this.ui.openCloseBtn.classList.remove('open');
-      this.ui.openCloseBtn.classList.add('close');
-      this.ui.overlay.classList.add('open');
-      this.ui.orbit.classList.remove('hidden');
-      this.ui.menuLabel.innerText = 'EXIT';
-      this.ui.menuLabel.style.color = '#262c25';
-
-      // 2. Trigger Physics
-      await this.morpher.explode();
-    } else {
-      this.ui.openCloseBtn.classList.remove('close');
-      this.ui.openCloseBtn.classList.add('open');
-      this.ui.overlay.classList.remove('open');
-      this.ui.orbit.classList.add('hidden');
-      this.ui.menuLabel.innerText = 'ALL PIECES';
-      
-      // 3. Trigger Physics (MorphTo handles the implosion animation)
-      const shards = SHARDS_MAP[this.currentIndex];
-      this.updateUI(shards, this.currentIndex); // Update text immediately
-      
-      // This function inside ShardMorpher will automatically:
-      // - Stop the galaxy spin
-      // - Reset Z-Index
-      // - Pull shards back to center
-      await this.morpher.morphTo(shards.data);
-    }
-    this.isTransitioning = false;
-  }
-
+  /**
+   * Handles keyboard interactions for navigation and accessibility.
+   * @param {KeyboardEvent} e - The native keydown event.
+   */
   handleKeydown(e) {
     // 1. Safety Check: Don't trigger if already morphing
     if (this.isTransitioning) return;
-    console.log('got', e.key);
 
     switch (e.key) {
-      case 'ArrowUp':
-      case 'ArrowLeft':
-        // PREVIOUS
-        this.navigate(-1);
-        break;
-
-      case 'ArrowDown':
-      case 'ArrowRight':
-        // NEXT
-        this.navigate(1);
-        break;
-
-      case 'Escape':
-        // EXIT OUT OF MENU
-        if (!this.ui.openCloseBtn.classList.contains('open')) this.toggleMenu(false);
+      case 'ArrowUp': // PREVIOUS
+      case 'ArrowLeft': this.navigate(-1); break;
+      case 'ArrowDown': // NEXT
+      case 'ArrowRight': this.navigate(1); break;
+      case 'Escape': // EXIT OUT OF MENU IF OPEN
+        if (this.isMenuOpen) this.toggleMenu(false);
         break;
     }
   }
 
+  /**
+   * Calculates the next index (cyclic) and triggers the load.
+   * @param {number} direction - The direction to move: -1 (Prev) or 1 (Next).
+   */
   navigate(direction) {
     // Don't overload
     if (this.isTransitioning) return;
@@ -243,23 +245,58 @@ class Controller {
     // 1. Update UI
     this.updateUI(shards, index);
 
-    // 2. Morph
-    // We pass shards.data directly. No lookups, no missing file keys.
+    // 2. Trigger Morph Animation
     await this.morpher.morphTo(shards.data, direction);
 
     this.isTransitioning = false;
   }
 
+  /**
+   * Toggles the application between "Exhibition Mode" (Normal) and "Menu Mode" (Exploded).
+   * * @param {boolean} shouldOpen - If true, explodes shards and opens menu. If false, implodes and closes.
+   * @returns {Promise<void>}
+   */
+  async toggleMenu(shouldOpen) {
+    if (this.isTransitioning) return;
+    this.isTransitioning = true;
+    this.isMenuOpen = shouldOpen;
+
+    if (shouldOpen) {  
+      // === OPEN MENU (EXPLODE) ===
+      this.setMenuUIState('open');
+      await this.morpher.explode();
+
+    } else {
+      // === CLOSE MENU (IMPLODE) ===
+      this.setMenuUIState('close');
+      
+      const shards = SHARDS_MAP[this.currentIndex];
+      this.updateUI(shards, this.currentIndex); // Ensure text matches current animal
+      
+      await this.morpher.morphTo(shards.data);
+    }
+    
+    this.isTransitioning = false;
+  }
+
+  // === UI HELPERS ===
+
+  /**
+   * Updates general UI elements (Titles, Background Colors, Next/Prev Labels).
+   * * @param {Object} shards - The data object for the current animal.
+   * @param {number} index - The current index.
+   */
   updateUI(shards, i) {
+    // Text Updates
     this.ui.title.innerText = shards.name;
     this.ui.index.innerText = i + 1;
 
+    // Color Updates (Batched in RAF)
     requestAnimationFrame(() => {
       this.ui.body.style.backgroundColor = shards.color;
       this.ui.prevLabel.style.color = shards.color;
       this.ui.nextLabel.style.color = shards.color;
       this.ui.menuLabel.style.color = shards.color;
-      // this.ui.canvas.width = shards.width ? `${shards.width}%` : '80%';
     });
 
     // Calculate labels for Next/Prev
@@ -269,29 +306,54 @@ class Controller {
     this.ui.prevLabel.innerText = SHARDS_MAP[prevIdx].name;
     this.ui.nextLabel.innerText = SHARDS_MAP[nextIdx].name;
   }
+
+  /**
+   * Toggles CSS classes for the Menu Button, Overlay, and Orbit container.
+   * * @param {'open'|'close'} state - The desired visual state.
+   */
+  setMenuUIState(state) {
+    if (state === 'open') {
+      this.ui.openCloseBtn.classList.replace('open', 'close');
+      this.ui.overlay.classList.add('open');
+      this.ui.orbit.classList.remove('hidden');
+      this.ui.menuLabel.innerText = 'EXIT';
+      this.ui.menuLabel.style.color = '#262c25'; // Dark color for contrast on overlay
+    } else {
+      this.ui.openCloseBtn.classList.replace('close', 'open');
+      this.ui.overlay.classList.remove('open');
+      this.ui.orbit.classList.add('hidden');
+      this.ui.menuLabel.innerText = 'ALL PIECES';
+    }
+  }
+
+  /**
+   * Controls the large text overlay content when hovering over orbit dots.
+   * * @param {Object|null} shard - The shard object to display. If null, reverts to default title.
+   * @param {number} index - The index of the shard.
+   */
+  updateOverlayContent(shard, index) {
+    if (shard) {
+      this.ui.overlayTitle.classList.remove('general');
+      this.ui.overlayTitle.style.color = shard.color;
+      this.ui.overlayTitle.innerHTML = `
+        <h1>SHARD ${index + 1}</h1>
+        <h2>${shard.name}</h2>
+        <h3>${shard.category}<span>${shard.status}</span></h3>
+      `;
+    } else {
+      // Revert to Default Title
+      this.ui.overlayTitle.classList.add('general');
+      this.ui.overlayTitle.innerHTML = `
+        <h1>IN PIECES</h1>
+        <h2>10 THINGS</h2>
+        <h2>10 PIECES</h2>
+        <h3>EXPLORING PATAGONIA</h3>
+      `;
+    }
+  }
 }
 
 // Start the app
 const app = new Controller();
 app.init();
-
-
-// try {
-//   const name = 'hippo';
-//   console.log('go!');
-//   const res = await fetch(`/svg/${name}.svg`);
-//   if (!res.ok) throw new Error('Failed to load SVG: ' + res.status);
-  
-//   // 1. Get the raw text
-//   const svgText = await res.text();
-
-//   // 2. Pass the RAW STRING directly to the function
-//   // Do not parse it with DOMParser here.
-//   const shardDataJson = serializePolygonData(svgText, name);
-  
-//   localStorage.setItem(name, JSON.stringify(shardDataJson)); // Ensure you stringify before storage
-
-// } catch (err) {
-//   console.error(err);
-// }
 

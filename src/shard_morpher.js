@@ -1,11 +1,39 @@
+/**
+ * @file shard_morpher.js
+ * @description The core animation engine for the "In Pieces" effect.
+ * This class manages a pool of DOM elements (shards), handles their geometric
+ * transformations (morphing), and coordinates complex animations like explosions and waves.
+ *
+ * Key Concepts:
+ * - Shard Pool: A fixed set of <div> elements reused to prevent DOM thrashing.
+ * - Morphing: Changing the `clip-path` and `background-color` to shape-shift.
+ * - Wave Effect: Staggering transitions based on X-position (Left-to-Right).
+ * - Explosion: Scattering shards to the screen edges with physics-like easing.
+ *
+ * @version 1.0.0
+ */
+
 class ShardMorpher {
+  /**
+   * Initializes the engine.
+   * @param {number} [maxShards=40] - The maximum number of shards supported.
+   * Increasing this allows more complex animals but impacts performance.
+   */
   constructor(maxShards = 40) {
     this.currentData = null;
     this.maxShards = maxShards;
-    this.shards = this.createShardPool();
     this.activeShards = 0;
+    this.isExploded = false;
+
+    // Initialize the DOM elements immediately
+    this.shards = this.createShardPool();
   }
 
+  /**
+   * Creates a pool of reuseable DOM elements and appends them to the #canvas.
+   * Using a DocumentFragment ensures we only trigger one browser reflow.
+   * @returns {Array<HTMLElement>} An array of the created shard elements.
+   */
   createShardPool() {
     const canvas = document.getElementById('canvas');
     if (!canvas) throw new Error('Container canvas not found');
@@ -25,7 +53,7 @@ class ShardMorpher {
       shard.className = 'shard';
       shard.dataset.index = i;  // For debugging
 
-      // Start collapsed at center
+      // Initial State: Collapsed invisible point at center
       shard.style.clipPath = 'polygon(50% 50%, 50% 50%, 50% 50%)';
       shard.style.webkitClipPath = 'polygon(50% 50%, 50% 50%, 50% 50%)';
       shard.style.backgroundColor = 'transparent';
@@ -34,21 +62,31 @@ class ShardMorpher {
       fragment.appendChild(wrapper);
       shards.push(shard);
     }
-
-    console.log(`Created initial shard pool with ${shards.length} shards`)
+    console.log(`[ShardMorpher] Initialized pool with ${shards.length} shards.`);
     canvas.appendChild(fragment);
     return shards;
   }
 
+  // ===========================================================================
+  // ANIMATION LOGIC
+  // ===========================================================================
+
   /**
-   * STANDARD MORPH: Used when changing species.
-   * Features: Sorting (Left-to-Right), Wave Effect, Area-based Z-Index.
+   * The Master Morph Function.
+   * Transitions the shards from their current state to the new animal shape.
+   * Automatically handles "Implosion" if the shards are currently exploded.
+   *
+   * @param {Object} data - The target animal data (from JSON/SVG).
+   * @param {string} [direction='ltr'] - Wave direction ('ltr' or 'rtl').
+   * @returns {Promise<void>} Resolves when the animation sequence completes.
    */
   async morphTo(data, direction = 'ltr') {
     const canvas = document.getElementById('canvas');
     if (!canvas) throw new Error('Container canvas not found');
 
-    // To track explosion state
+    // 1. Check & Handle Explosion State
+    // If we are currently exploded, we need to "Implode" (Gravity Mode)
+    // instead of doing the standard wave reveal.
     const needsGravity = this.isExploded;
     this.isExploded = false;
 
@@ -70,35 +108,35 @@ class ShardMorpher {
       shard.style.transition = 'transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1)'; 
     });
 
-    // 3. UPDATE STATE
-    // We must tell the shards what they are turning into (New Color, New Shape, New Z-Index)
+    // 3. Update Visuals (Shape/Color)
+    // We update the DOM properties immediately. CSS Transitions will handle the visual morph.
     this.currentData = data;
     this.updateShardData(data);
 
+    // 4. Trigger Animation Sequence
     if (needsGravity) {
-      // 4. TRIGGER GRAVITY
-      // Now that the properties are set, we rely on the CSS transitions 
-      // (defined above in step 2) to animate them to these new values.
-      return this.gravity(data, {
-        sort: true,             
-        stagger: 20,            
-        duration: 800,          
-        easing: 'cubic-bezier(0.6, 0.05, 0.28, 0.91)', 
-        direction: direction
-      });
+      // MODE A: Implosion (Gravity)
+      // Wait for pieces to fly back and settle into the new shape.
+      return this.gravity();
     } else {
-      // 5. STANDARD WAVE
-      // Direction decides if delays go 0->30 or 30->0
+      // MODE B: Standard Wave
+      // Reveal pieces one by one from Left-to-Right (or Right-to-Left).
       return this.revealShards(direction);
     }
   }
 
+  /**
+   * ANIMATION MODE: Standard Wave.
+   * Staggers the transition of each shard to create a flowing wave effect.
+   * @param {string} direction - 'ltr' (Left-to-Right) or 'rtl' (Right-to-Left).
+   */
   revealShards(direction) {
     return new Promise((resolve) => {
       const step = 30; // ms delay between each piece
       const duration = 800;
 
       this.shards.forEach((shard, i) => {
+        // Only animate active shards (those part of the new animal)
         if (i < this.activeShards) {
           // --- DIRECTION LOGIC ---
           // LTR: 0 -> 30
@@ -109,8 +147,8 @@ class ShardMorpher {
           
           const delay = delayIndex * step;
 
-          // Apply transition with calculated delay. Only transition clip-path and color
-          // not position
+          // Apply complex transition string
+          // Note: transform is NOT transitioned here (it stays at 0,0)
           shard.style.transition = `
             clip-path ${duration}ms cubic-bezier(0.6, 0.05, 0.28, 0.91) ${delay}ms,
             background-color ${duration}ms ease ${delay}ms,
@@ -129,76 +167,22 @@ class ShardMorpher {
     });
   }
 
-  updateShardData(data) {
-    // Convert the dictionary to an array so we can sort it
-    // We don't care about the IDs ("1", "30") anymore (not using them for ordering)
-    if (!data.shards) throw new Error('ERROR: Cannot update data without valid shards and box');
-
-    const shardArr = Object.entries(data.shards);
-   
-    // Sort the array based on the X-position of the shape so items further to the left
-    // show up first which makes it easier for the wave to pick the first item (leftmost)
-    // This works regardless of the ordering of the JSON file (back-most = first)
-    shardArr.sort((a, b) => {
-      return getLeftEdge(a[1].path) - getLeftEdge(b[1].path);
-    });
-
-    this.activeShards = Math.min(shardArr.length, this.maxShards);
-
-    // Assign sorted data to the DOM pool
-    this.shards.forEach((shard, i) => {
-      // While we still have shards to morph
-      if (i < this.activeShards) {
-        const shardData = shardArr[i];
-
-        // Dynamic Z-Index sorting so small shards never hidden by big ones
-        // Smaller pieces get higher Z-index to sit on top
-        // const area = getPolygonArea(shardData[1].path);
-        const width = getShardWidth(shardData[1].path);
-        const zIndex = Math.floor(100 - width);
-        shard.style.zIndex = zIndex;
-
-        // Apply visual properties
-        // console.log(`morphing shard ${i + 1}:`, shardData[1]);
-        shard.style.backgroundColor = shardData[1].fill; // [0] = index, [1] = {}
-        shard.style.clipPath = shardData[1].path;
-        shard.style.webkitClipPath = shardData[1].path;
-        shard.style.opacity = 1; // Reset if hidden
-      } else {
-        // Collapse unused shards to the center
-        console.log('collapsing unused shard');
-        shard.style.backgroundColor = 'transparent';
-        shard.style.clipPath = 'polygon(50% 50%, 50% 50%, 50% 50%)';
-        shard.style.webkitClipPath = 'polygon(50% 50%, 50% 50%, 50% 50%)';
-        shard.style.opacity = 0;
-        shard.style.zIndex = 0;
-      }
+  /**
+   * ANIMATION MODE: Gravity (Implosion).
+   * Simple wait helper. The actual animation is handled by the CSS transition
+   * applied in Step 2 of `morphTo`.
+   */
+  async gravity() {
+    return new Promise(resolve => {
+      // Wait for the 'transform 1.5s' transition to finish
+      setTimeout(resolve, 1500);
     });
   }
 
-  async gravity(data, options) {
-    this.shards.forEach((shard, i) => {
-      const target = data.shards[i + 1]; // Assuming 1-based IDs
-      
-      if (target) {
-        // 1. Set Shape
-        shard.style.clipPath = target.path;
-        shard.style.webkitClipPath = target.path;
-        
-        // 2. Set Color
-        shard.style.backgroundColor = target.fill; // Or data.color
-
-        // 3. CRITICAL: Ensure they sit at 0,0 (Center)
-        // This ensures that if they were exploded, they come home.
-        shard.style.transform = 'translate3d(0,0,0) rotate(0deg)';
-        shard.style.opacity = 1;
-      } else {
-        // Hide unused shards
-        shard.style.opacity = 0;
-      }
-    });
-  }
-
+  /**
+   * ANIMATION MODE: Explosion.
+   * Scatters all shards to the edges of the screen in a random circular distribution.
+   */
   async explode() {
     const canvas = document.getElementById('canvas');
     if (!canvas) throw new Error('Container canvas not found');
@@ -206,10 +190,9 @@ class ShardMorpher {
     // Mark this so we track state
     this.isExploded = true;
 
-    // 1. Activate galaxy mode
+    // 1. Enter "Galaxy Mode"
     canvas.classList.add('galaxy-spin');
-    // Bring canvas ABOVE the dark overlay (z-999) but below text
-    canvas.style.zIndex = 999;
+    canvas.style.zIndex = 999; // Bring canvas ABOVE the dark overlay
 
     // Cycle between these colors
     const explosionColors = [
@@ -228,8 +211,7 @@ class ShardMorpher {
       // 3. Trajectory logic (random circle distribution)
       const angle = Math.random() * Math.PI * 2;
 
-      // Distance: Push them far enough to hit edges (e.g., 60% of screen width)
-      // We add randomness so they don't form a perfect boring ring
+      // Radius: Push far enough to hit edges (~40% of screen width) + random variance
       const radius = (window.innerWidth / 2.7) + (Math.random() * 200);
 
       const tx = Math.cos(angle) * radius;
@@ -239,18 +221,82 @@ class ShardMorpher {
       const rotation = Math.random() * 720;
 
       // 4. Apply the Physics
-      // Transition: Fast explosion (1s) with an ease-out
+      // Long duration (3s) with ease-out for a "Boom... drift" effect
       shard.style.transition = 'transform 3s cubic-bezier(0.1, 1, 0.2, 1), background-color 0.5s';
-      
-      // Transform: Move to the calculated circle point
       shard.style.transform = `translate3d(${tx}px, ${ty}px, 0) rotate(${rotation}deg)`;
-
-      // Ensure it's visible
       shard.style.opacity = 1;
+    });
+  }
+
+  // ===========================================================================
+  // DATA & DOM HELPERS
+  // ===========================================================================
+
+  /**
+   * Updates the internal state of the shards to match the new animal data.
+   * - Sorts shards Left-to-Right for the wave effect.
+   * - Calculates Z-Index based on shard size (Small items on top).
+   * - Hides unused shards.
+   *
+   * @param {Object} data - The normalized animal data object.
+   */
+  updateShardData(data) {
+    // Convert the dictionary to an array so we can sort it
+    // We don't care about the IDs ("1", "30") anymore (not using them for ordering)
+    if (!data.shards) throw new Error('ERROR: Cannot update data without valid shards and box');
+
+    // 1. Convert Dictionary to Array for Sorting
+    const shardArr = Object.entries(data.shards);
+   
+    // 2. Spatial Sorting
+    // Sort the array based on the X-position of the shape so items further to the left
+    // show up first which makes it easier for the wave to pick the first item (leftmost)
+    // This works regardless of the ordering of the JSON file (back-most = first)
+    shardArr.sort((a, b) => {
+      return getLeftEdge(a[1].path) - getLeftEdge(b[1].path);
+    });
+
+    this.activeShards = Math.min(shardArr.length, this.maxShards);
+
+    // 3. Assign Data to DOM Elements
+    this.shards.forEach((shard, i) => {
+      // While we still have shards to morph
+      if (i < this.activeShards) {
+        // Active Shard
+        const shardData = shardArr[i];
+
+        // Size-based Z-Indexing:
+        // Smaller pieces (eyes, details) get higher Z-index so they aren't covered
+        const width = getShardWidth(shardData[1].path);
+        const zIndex = Math.floor(100 - width);
+        shard.style.zIndex = zIndex;
+
+        // Apply visual properties
+        shard.style.backgroundColor = shardData[1].fill; // [0] = index, [1] = {}
+        shard.style.clipPath = shardData[1].path;
+        shard.style.webkitClipPath = shardData[1].path;
+        shard.style.opacity = 1; // Reset if hidden
+      } else {
+        // Collapse unused shards to the center
+        shard.style.backgroundColor = 'transparent';
+        shard.style.clipPath = 'polygon(50% 50%, 50% 50%, 50% 50%)';
+        shard.style.webkitClipPath = 'polygon(50% 50%, 50% 50%, 50% 50%)';
+        shard.style.opacity = 0;
+        shard.style.zIndex = 0;
+      }
     });
   }
 }
 
+// =============================================================================
+// UTILITY HELPERS
+// =============================================================================
+/**
+ * Finds the leftmost X-coordinate (in %) of a polygon string.
+ * Used for sorting shards Left-to-Right.
+ * @param {string} polygonString - e.g., "polygon(10% 10%, ...)"
+ * @returns {number} The minimum X value found.
+ */
 function getLeftEdge(polygonString) {
     if (!polygonString) {
       console.error('ERROR: getLeftEdge got undefined path');
@@ -275,6 +321,12 @@ function getLeftEdge(polygonString) {
     return minX;
 }
 
+/**
+ * Calculates the width of a polygon (in %) to determine Z-index.
+ * Could have also used area instead.
+ * @param {string} polygonString
+ * @returns {number} Width of the shape.
+ */
 function getShardWidth(polygonString) {
   if (!polygonString) {
     console.error('ERROR: getShardWidth got an undefined polygon string');
