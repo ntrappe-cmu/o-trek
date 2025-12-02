@@ -21,70 +21,70 @@ let SHARDS_MAP = [
   {
     name: 'MAGELLANIC WOODPECKER',
     color: '#c290d9ff',
-    dataPath: './assets/json/woodpecker.json',
+    dataPath: './src/assets/json/woodpecker.json',
     category: 'BIRD',
     status: 'NORMAL'
   },
   {
     name: 'BULLOCK\'S FALSE TOAD',
     color: '#60b49aff',
-    dataPath: './assets/json/toad.json',
+    dataPath: './src/assets/json/toad.json',
     category: 'AMPHIBIAN',
     status: 'ENDANGERED'
   },
   {
     name: 'MAGELLANIC PENGUIN',
     color: '#8293e0',
-    dataPath: './assets/json/penguin.json',
+    dataPath: './src/assets/json/penguin.json',
     category: 'BIRD',
     status: 'NORMAL'
   },
   {
     name: 'HIPPOCAMELUS',
     color: '#F5C764',
-    dataPath: './assets/json/hippo.json',
+    dataPath: './src/assets/json/hippo.json',
     category: 'MAMMAL',
     status: 'ENDANGERED'
   },
   {
     name: 'PUDU',
     color: '#f8a0bbff',
-    dataPath: './assets/json/pudu.json',
+    dataPath: './src/assets/json/pudu.json',
     category: 'MAMMAL',
     status: 'THREATENED'
   },
   {
     name: 'MARA',
     color: '#7fae97ff',
-    dataPath: './assets/json/mara.json',
+    dataPath: './src/assets/json/mara.json',
     category: 'MAMMAL',
     status: 'THREATENED'
   },
   {
     name: 'ICE DRAGON',
     color: '#40cde3ff',
-    dataPath: './assets/json/dragon.json',
+    dataPath: './src/assets/json/dragon.json',
     category: 'INSECT',
     status: 'ENDANGERED'
   },
   {
     name: 'GUANACO',
     color: '#ec6967ff',
-    dataPath: './assets/json/guanaco.json',
+    dataPath: './src/assets/json/guanaco.json',
     category: 'MAMMAL',
     status: 'NORMAL'
   },
   {
     name: 'ANDEAN CONDOR',
     color: '#8ab68fff',
-    dataPath: './assets/json/condor.json',
+    dataPath: './src/assets/json/condor.json',
     category: 'BIRD',
     status: 'VULNERABLE'
   },
   {
     name: 'COMMERSON\'S DOLPHIN',
     color: '#3dc0d5ff',
-    dataPath: './assets/json/dolphin.json',
+    dataPath: './src/assets/json/dolphin.json',
     category: 'MAMMAL',
     status: 'NORMAL'
   }
