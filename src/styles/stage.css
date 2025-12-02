@@ -1,24 +1,36 @@
+/* =========================================
+   1. MAIN CANVAS (THE STAGE)
+   ========================================= */
 @import url('style.css');
 
+/* * The main container for the animal.
+ * Centered perfectly in the viewport using top/left 50% + negative transform.
+ * aspect-ratio: 1/1 ensures the coordinate system (0% to 100%) remains square,
+ * preventing the shards from stretching or skewing.
+ */
 .canvas {
   position: absolute;
   top: 40%;
   left: 50%;
   transform: translate(-50%, -40%);
+
+  /* Critical for the shard coordinate system */
   aspect-ratio: 1 / 1;
   width: 50%;
   height: auto;
+
+  /* Constraints to keep it viewable on massive/tiny screens */
   max-width: 1500px;
   min-height: 100px;
 }
 
-.info-wrapper {
-  position: absolute;
-  bottom: 5%;
-  width: 100%;
-  transition: 0.18s 0.3s;
-}
- 
+/* =========================================
+   2. SHARD ELEMENTS
+   ========================================= */
+
+/* * Wrapper allows us to position the shard relative to the canvas 
+ * without affecting the shard's internal transforms (scale/rotate).
+ */
 .shard-wrapper {
   position: absolute;
   width: 100%;
@@ -27,13 +39,29 @@
   left: 0;
 }
 
+/* * The actual visual triangle.
+ * The clip-path is updated via JavaScript (shard_morpher.js).
+ * Default state is a collapsed point in the center.
+ */
 .shard {
   position: absolute;
   width: 100%;
   height: 100%;
+  /* default shard is collapsed */
   background-color: blueviolet;
   clip-path: polygon(50% 50%, 50% 50%, 50% 50%);
   -webkit-clip-path: polygon(50% 50%, 50% 50%, 50% 50%);
+}
+
+/* =========================================
+   3. TYPOGRAPHY & INFO
+   ========================================= */
+/* Container for Title and Species Info at bottom of screen */
+.info-wrapper {
+  position: absolute;
+  bottom: 5%;
+  width: 100%;
+  transition: 0.18s 0.3s;
 }
 
 .info-wrapper ul {
@@ -44,6 +72,7 @@
   li {
     display: inline-block;
     background-color: white;
+    /* Applies a textured pattern to the text itself */
     background: url("../assets/repeat-white.png") center center / 50px 60px repeat;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -52,12 +81,14 @@
   }
 }
 
+/* The Animal Name */
 #shard-main-title {
   font-size: 2.8em;
   letter-spacing: 0.05em;
   white-space: nowrap;
 }
 
+/* The vertical divider line between Name and Index */
 .info-wrapper ul li:last-child {
   border-left: 2.5px solid;
   color: rgba(0, 0, 0, 0.5);
@@ -66,6 +97,7 @@
   opacity: 0.9;
 }
 
+/* Category and Status sub-labels */
 .info-wrapper h3 {
   font-size: 0.75em;
   letter-spacing: 0.05em;
@@ -77,6 +109,11 @@
   }
 } 
 
+/* =========================================
+   4. NAVIGATION CONTROLS (BUTTONS)
+   ========================================= */
+
+/* Shared styles for Left (Menu) and Right (Nav) controls */
 .info-controls,
 .nav-controls {
   display: flex;
@@ -85,10 +122,13 @@
   top: 50%;
 }
 
+/* --- RIGHT SIDE: NEXT / PREV --- */
 .nav-controls {
   right: 50px;
   transform: translate(0, -50%);
 
+  /* The bottom button (Next) arrow needs to point down/right? */
+  /* Actually, this rotation is usually for the 'Prev' arrow to flip it */
   span:last-child {
     margin-top: 5em;
     svg {
@@ -113,6 +153,7 @@
   }
 }
 
+/* Shared Button Reset */
 button {
   position: relative;
   background: none;
@@ -126,6 +167,7 @@ svg {
   height: auto;
 }
 
+/* --- LEFT SIDE: MENU / EXPLODE --- */
 .info-controls {
   left: 50px;
   transform: translate(0, -50%);
@@ -151,10 +193,12 @@ svg {
     transition: transform 0.5s ease-in-out;
   }
 
+  /* State: Menu Closed (Show +) */
   button.open {
     transform: rotate(0);
   }
 
+  /* State: Menu Open (Show X) */
   button.close {
     transform: rotate(45deg);
     
@@ -173,9 +217,13 @@ svg {
   }
 }
 
+/* =========================================
+   5. TOOLTIPS / POPUPS
+   ========================================= */
 .info-popup,
 .control-popup {
   position: absolute;
+  /* Middle Slice */
   background: url("../assets/popout-mid.png") repeat-x left center;
   background-size: 85px 36px;
   padding: 12px 2px;
@@ -187,18 +235,21 @@ svg {
   pointer-events: none;
 }
 
+/* Position adjustments for Right Side controls */
 .control-popup {
   right: 80px;  
   transform: translateX(8px);
   transition: 0.18s;
 }
 
+/* Position adjustments for Left Side controls */
 .info-popup {
   left: 80px;
   transform: translateX(-8px);
   transition: 0.18s;
 }
 
+/* Setup pseudo-elements for End Caps */
 .info-popup::before,
 .info-popup::after,
 .control-popup::before,
@@ -211,6 +262,7 @@ svg {
   z-index: -1;
 }
 
+/* Left Cap Image */
 .control-popup::before,
 .info-popup::before {
   left: -23px;
@@ -218,6 +270,7 @@ svg {
   background-size: 20px 36px;
 }
 
+/* Right Cap Image */
 .control-popup::after,
 .info-popup::after {
   right: -23px;
@@ -225,19 +278,15 @@ svg {
   background-size: 20px 36px;
 }
 
-#prev-popup {
-  top: 4px;
-}
+/* Vertical alignments for specific buttons */
+#prev-popup { top: 4px; }
+#next-popup { bottom: 4px; }
+#menu-popup { top: 0; }
 
-#next-popup {
-  bottom: 4px;
-}
-
-#menu-popup {
-  top: 0;
-}
-
-
+/* =========================================
+   6. RESPONSIVE QUERIES
+   ========================================= */
+   
 /* Wide */
 @media only screen and (min-width: 1200px) {
   #shard-main-title {
@@ -252,6 +301,10 @@ svg {
     font-size: 1em;
   }
   
+  .info-wrapper ul li:last-child {
+    border-left: 3px solid;
+    opacity: 0.8;
+  }
 }
 
 /* Mobile */
@@ -263,7 +316,7 @@ svg {
   .info-wrapper h3 {
     font-size: 0.55em;
   }
-  
+
   .info-wrapper span {
     font-size: 0.7em;
   }

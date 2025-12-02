@@ -323,7 +323,7 @@ function getLeftEdge(polygonString) {
 
 /**
  * Calculates the width of a polygon (in %) to determine Z-index.
- * Could have also used area instead.
+ * Could have also used area instead. (Probably for future work).
  * @param {string} polygonString
  * @returns {number} Width of the shape.
  */

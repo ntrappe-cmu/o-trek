@@ -1,5 +1,12 @@
+/* =========================================
+   1. FULLSCREEN OVERLAY & MENU
+   ========================================= */
 @import url('style.css');
 
+/* * The Dark Backdrop
+ * Covers the entire screen when the menu opens.
+ * Uses visibility + z-index to toggle instead of display:none to allow transitions.
+ */
 .fullscreen-overlay {
   position: absolute;
   display: block;
@@ -7,9 +14,8 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #253130;
+  background-color: var(--forest);
   align-items: center;
-  /* opacity: 0.7; */
   z-index: -1;
   visibility: hidden;
 }
@@ -19,6 +25,10 @@
   visibility: visible;
 }
 
+/* * Centered Container for Text
+ * Holds the "IN PIECES" or "SHARD 1" text in the exact center of the orbit.
+ * Uses vmin (viewport minimum) to scale proportionally on both portrait/landscape.
+ */
 .shard-selection {
   position: absolute;
   display: flex;
@@ -31,6 +41,9 @@
   height: 38vmin;
 }
 
+/* =========================================
+   2. TYPOGRAPHY (MENU SPECIFIC)
+   ========================================= */
 #title-content {
   width: 100%;
   margin: auto;
@@ -45,6 +58,10 @@
     color: inherit;
   }
 
+  /* * Textured Text Effect
+   * Applies a scratchy animation to the background position of the text fill.
+   * This makes the text look like it's vibrating or being sketched live.
+   */
   h2 {
     background: url("../assets/repeat-white.png") center center / 80px 60px repeat;
     -webkit-background-clip: text;
@@ -72,6 +89,7 @@
   }
 }
 
+/* Styles for the "General" state (Intro text when not hovering a specific shard) */
 #title-content.general {
   h1 {
     color: var(--lime);
@@ -80,19 +98,23 @@
     letter-spacing: .08em;
   }
 
-  h2 {
-    font-size: 3.2em;
-  }
+  h2 { font-size: 3.2em; }
 
   h3 {
     font-size: 1.25em;
     letter-spacing: .1em;
     margin-top: 10px;
-    color: #5a706d;
+    color: var(--leaf);
   }
 }
 
+/* =========================================
+   3. ORBIT SYSTEM (THE MENU RING)
+   ========================================= */
 
+/* * The Invisible Ring Container
+ * This div spins continuously (slowSpin) to rotate the entire galaxy.
+ */
 #orbit {
   position: absolute;
   top: 50%;
@@ -102,7 +124,6 @@
   width: 70vmin; 
   height: 70vmin;
   transform: translate(-50%, -50%);
-  /* animation: slowSpin 100s linear infinite; */
   z-index: 1001;
 }
 
@@ -111,6 +132,9 @@
   visibility: hidden;
 }
 
+/* * The Interactive Dots
+ * These are the clickable targets for each animal.
+ */
 .dot {
   position: absolute;
   top: 44%;
@@ -125,13 +149,14 @@
 }
 
 .dot:hover {
-  border: 1px solid;
+  border: 1px solid; /* Shows the species color ring */
 
   .inner-dot {
     opacity: 0.9;
   }
 }
 
+/* Small white center point */
 .inner-dot {
   position: absolute;
   top: 44%;
@@ -144,6 +169,12 @@
   transition: opacity 0.5s ease-in-out
 }
 
+/* * CIRCULAR POSITIONING LOGIC
+ * instead of calculating x/y pixels (sin/cos), we use CSS Transforms.
+ * 1. Rotate the element by X degrees.
+ * 2. Translate it OUTWARD by Y vmin.
+ * This automatically arranges them in a perfect circle.
+ */
 .dot:nth-child(1)  { transform: rotate(36deg)  translate(30vmin); }
 .dot:nth-child(2)  { transform: rotate(72deg)  translate(27vmin); }
 .dot:nth-child(3)  { transform: rotate(108deg) translate(27vmin); }
@@ -155,6 +186,7 @@
 .dot:nth-child(9)  { transform: rotate(324deg) translate(27vmin); }
 .dot:nth-child(10) { transform: rotate(360deg) translate(27vmin); }
 
+/* Applied to #canvas to make the shards orbit the center */
 .galaxy-spin {
   animation: slowSpin 60s linear infinite;
 }
@@ -163,20 +195,9 @@
   animation-play-state: paused;
 }
 
-
-@media only screen and (max-width:800px) {
-  .dot {
-    width: 48px;
-    height: 48px;
-  }
-}
-
-@media only screen and (max-width:700px) {
-  .dot {
-    width: 42px;
-    height: 42px;
-  }
-}
+/* =========================================
+   4. ANIMATIONS
+   ========================================= */
 
 /* The infinite orbit animation */
 @keyframes slowSpin {
@@ -184,6 +205,10 @@
   to   { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
+/* * SCRATCHY ANIMATION
+ * Creates a jittery/hand-drawn texture effect by rapidly shifting
+ * the background-position of the text mask.
+ */
 @-webkit-keyframes scratchy {
   0% {
     background-position: 0 0; }
@@ -244,65 +269,39 @@
   100% {
     background-position: 0 0; } }
 
+/* =========================================
+   5. RESPONSIVE SIZING
+   ========================================= */
+
 /* Wide */
 @media only screen and (min-width: 800px) and (min-height: 800px) {
-  #title-content h1 {
-    font-size: 0.9em;
-  }
+  #title-content h1 { font-size: 0.9em; }
+  #title-content.general h1 { font-size: 1.4em; }
+  #title-content h2 { font-size: 3.4em; }
+  #title-content.general h2 { font-size: 4.4em; }
+  #title-content h3 { font-size: 1.1em; }
+  #title-content.general h3 { font-size: 1.6em; }
+}
 
-  #title-content.general h1 {
-    font-size: 1.4em;
-  }
+@media only screen and (max-width:800px) {
+  .dot { width: 48px; height: 48px; }
+}
 
-  #title-content h2 {
-    font-size: 3.4em;
-  }
-
-  #title-content.general h2 {
-    font-size: 4.4em;
-  }
-
-  #title-content h3 {
-    font-size: 1.1em;
-  }
-
-  #title-content.general h3 {
-    font-size: 1.6em;
-  }
-  
+@media only screen and (max-width:700px) {
+  .dot { width: 42px; height: 42px; }
 }
 
 /* Medium */
 @media only screen and (max-width: 1000px) {
-  #title-content.general h1 {
-    font-size: 0.9em;
-  }
-
-  #title-content.general h2 {
-    font-size: 2.8em;
-  }
-
-  #title-content.general h3 {
-    font-size: 1em;
-  }
+  #title-content.general h1 { font-size: 0.9em; }
+  #title-content.general h2 { font-size: 2.8em; }
+  #title-content.general h3 { font-size: 1em; }
 }
 
 @media only screen and (max-width: 700px) {
-   #title-content.general h1 {
-    font-size: 0.7em;
-  }
-
-  #title-content h2 {
-    font-size: 1.8em !important;
-  }
-
-  #title-content.general h2 {
-    font-size: 2.4em !important;
-  }
-
+  #title-content.general h1 { font-size: 0.7em; }
+  #title-content h2 { font-size: 1.8em !important; }
+  #title-content.general h2 { font-size: 2.4em !important; }
   #title-content h3,
-  #title-content.general h3 {
-    font-size: 0.7em;
-  }
-
+  #title-content.general h3 { font-size: 0.7em; }
 }

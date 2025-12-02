@@ -1,5 +1,32 @@
+/* =========================================
+  1. GLOBAL SETTINGS & IMPORTS
+  ========================================= */
 @import url('./fonts/fonts.css');
 
+:root {
+  /* Browser optimization for font rendering */
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Global variable for specific accent color */
+  --lime: #96d75b;
+  --forest: #253130;
+  --leaf: #5a706d;
+}
+
+/* Standard Box Model Reset: ensures padding doesn't affect total width */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* * LOCK THE VIEWPORT
+ * We set height/width to 100% and overflow hidden to create an "App-like" feel.
+ * This disables native browser scrolling.
+ */
 body, html {
   height: 100%;
   width: 100%;
@@ -10,28 +37,40 @@ body, html {
   font-family: 'Bloc';
 }
 
-/* The nested transform layers (viewport → stage → canvas) need precise absolute positioning */
-/* with top: 0; left: 0 to create the transform origin points */
+/* =========================================
+   2. MAIN LAYOUT CONTAINERS
+   ========================================= */
+
+/* * THE EXHIBITION WRAPPER 
+ * This is the main background layer. It handles the smooth color transitions
+ * when switching between animals.
+ */
 #exhibition {
   height: 100%;
   width: 100%;
   position: relative;
-  overflow: hidden;
+  overflow: hidden; /* Ensures shards don't fly off-screen causing scrollbars */
   transition: background 0.5s ease;
   -webkit-transition: background 0.5s ease;
   -moz-transition: background 0.5s ease;
-
-  /* Specific background colors */
-  &.turtle { background-color: rgb(225, 141, 165); color: rgb(154, 74, 96); }
+  /* Example specific animal override (optional) */
+  background-color: rgba(255, 141, 165);
+  color: rgba(154, 74, 96);
 }
 
+/* * THE VIEWPORT
+ * Acts as the camera lens. Currently unused transforms, but setup allows
+ * for zooming in/out of the whole scene programmatically later.
+ */
 .viewport {
   width: 100%;
   height: 100%;
-  /* transform: scale(0.5) translateY(-14%);
-  transition: 0.8s cubic-bezier(0.88, 0.005, 0.1, 1); */
 }
 
+/* * THE STAGE
+ * The central 80% box where the Animal and Text actually live.
+ * This creates the "framed" look inside the screen.
+ */
 .stage {
   position: absolute;
   top: 10%;
@@ -41,9 +80,12 @@ body, html {
   width: 80%;
   height: 80%;
   margin: auto;
-  /* transition: transform 0.8s cubic-bezier(0.88, 0.005, 0.1, 1); */
 }
 
+/* =========================================
+   3. DECORATIVE BORDER (THE FRAME)
+   ========================================= */
+/* Wrapper for the SVG borders */
 .border {
   position: absolute;
   height: 100%;
@@ -56,7 +98,12 @@ body, html {
   }
 }
 
+/* * THE STRAIGHT EDGES 
+ * Positions 4 divs to act as Top, Right, Bottom, Left borders.
+ * Uses repeat-x/y to tile the small SVG pattern.
+ */
 .frames {
+  /* TOP EDGE */
   div:nth-child(1) {
     left: 0;
     top: 0;
@@ -65,6 +112,7 @@ body, html {
     background: url("../assets/border.svg") repeat-x 50% 50%;
   }
 
+  /* LEFT EDGE */
   div:nth-child(2) {
     left: 0;
     top: 0;
@@ -73,6 +121,7 @@ body, html {
     background: url("../assets/border-vert.svg") repeat-y 50% 50%;
   }
 
+  /* BOTTOM EDGE (Rotated 180) */
   div:nth-child(3) {
     left: 0;
     top: auto;
@@ -83,6 +132,7 @@ body, html {
     background: url("../assets/border.svg") repeat-x 50% 50%;
   }
 
+  /* RIGHT EDGE (Rotated 180) */
   div:nth-child(4) {
     top: auto;
     right: 0;
@@ -93,6 +143,10 @@ body, html {
   }
 }
 
+/* * THE CORNERS
+ * Uses ::before and ::after to place 4 corner images using only 2 div elements.
+ * Each corner is rotated 90deg to fit the box.
+ */
 .corners {
   div::before, div::after {
     content: "";
@@ -103,11 +157,13 @@ body, html {
     
   }
 
+  /* Top Left */
   div:nth-child(1)::before {
     left: 10px;
     top: 11px;
   }
 
+  /* Top Right (Rotated 90deg) */
   div:nth-child(1)::after {
     transform: rotate(90deg);
     left: auto;
@@ -115,6 +171,7 @@ body, html {
     top: 11px;
   }
 
+  /* Bottom Right (Rotated 180deg) */
   div:nth-child(2)::before {
     left: auto;
     right: 10px;
@@ -123,6 +180,7 @@ body, html {
     transform: rotate(180deg);
   }
 
+  /* Bottom Left (Rotated 270deg) */
   div:nth-child(2)::after {
     left: 10px;
     top: auto;
@@ -131,12 +189,21 @@ body, html {
   }
 }
 
+/* Hide the complex border on mobile/small screens to save space */
 @media only screen and ((max-width:700px) or (max-height:500px)) {
   .border, .frames, .corners {
     visibility: hidden;
   }
 }
 
+/* =========================================
+   4. TYPOGRAPHY & EFFECTS
+   ========================================= */
+
+/* * SCRATCHY TEXT EFFECT
+ * Applies the 'jitter' animation defined elsewhere to H2 elements.
+ * Background-clip allows for textured text if a bg image is added.
+ */
 h2 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -151,16 +218,3 @@ ul {
   margin: 0;
 }
 
-:root {
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  --lime: #96d75b;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
