@@ -21,14 +21,14 @@ let SHARDS_MAP = [
   {
     name: 'MAGELLANIC WOODPECKER',
     color: '#c290d9ff',
-    dataPath: './assets/json/woodpecker.json',
+    dataPath: './src/assets/json/woodpecker.json',
     category: 'BIRD',
     status: 'NORMAL'
   },
   {
     name: 'BULLOCK\'S FALSE TOAD',
     color: '#60b49aff',
-    dataPath: './src/assets/json/toad.json',
+    dataPath: './assets/json/toad.json',
     category: 'AMPHIBIAN',
     status: 'ENDANGERED'
   },
