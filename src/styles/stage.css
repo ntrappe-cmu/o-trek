@@ -236,3 +236,35 @@ svg {
 #menu-popup {
   top: 0;
 }
+
+
+/* Wide */
+@media only screen and (min-width: 1200px) {
+  #shard-main-title {
+    font-size: 4em;
+  }
+
+  .info-wrapper h3 {
+    font-size: 1em;
+  }
+
+  .info-wrapper span {
+    font-size: 1em;
+  }
+  
+}
+
+/* Mobile */
+@media only screen and (max-width: 650px) {
+  #shard-main-title {
+    font-size: 2.2em;
+  }
+
+  .info-wrapper h3 {
+    font-size: 0.55em;
+  }
+  
+  .info-wrapper span {
+    font-size: 0.7em;
+  }
+}
