@@ -11,16 +11,16 @@
  */
 
 import ShardMorpher from './shard_morpher.js';
-import condor from './assets/json/condor.json';
-import guanaco from './assets/json/guanaco.json';
-import dolphin from './assets/json/dolphin.json'
-import mara from './assets/json/mara.json'
-import woodpecker from './assets/json/woodpecker.json';
-import pudu from './assets/json/pudu.json';
-import toad from './assets/json/toad.json';
-import penguin from './assets/json/penguin.json';
-import dragon from './assets/json/dragon.json';
-import hippo from './assets/json/hippo.json';
+import condor from './assets/json/condor.json' assert { type: 'json' };
+import guanaco from './assets/json/guanaco.json' assert { type: 'json' };
+import dolphin from './assets/json/dolphin.json' assert { type: 'json' };
+import mara from './assets/json/mara.json' assert { type: 'json' };
+import woodpecker from './assets/json/woodpecker.json' assert { type: 'json' };
+import pudu from './assets/json/pudu.json' assert { type: 'json' };
+import toad from './assets/json/toad.json' assert { type: 'json' };
+import penguin from './assets/json/penguin.json' assert { type: 'json' };
+import dragon from './assets/json/dragon.json' assert { type: 'json' };
+import hippo from './assets/json/hippo.json' assert { type: 'json' };
 
 /**
  * @constant {Array<Object>} SHARDS_MAP
@@ -356,4 +356,3 @@ class Controller {
 // Start the app
 const app = new Controller();
 app.init();
-
